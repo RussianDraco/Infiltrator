@@ -777,8 +777,8 @@ class Map:
             self.load_level(self.current_level)
             self.game.pathfinding.reset_pathfinding(self.cur_map)
             self.current_level += 1
-        except KeyError:
-            print("Game won")
+        except KeyError as x:
+            print(x)
             self.game.win_game()
 
         #self.inBase = False
