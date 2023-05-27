@@ -2613,6 +2613,56 @@ class StartMenu:
         self.screen.blit(appliedTxt, (x,y))
 
 
+###########################LEVEL SELECTOR###############################
+
+class levelselector:
+    def __init__(self):
+        self.font = pg.font.Font(None, 65)
+        self.mainscreen = pg.display.set_mode(ACTUALRES, pg.FULLSCREEN)
+        self.screen = pg.Surface((WIDTH, HEIGHT + SHEIGHT)) # not a swear word, stands for s height
+        self.screen.fill('skyblue')
+        self.wacky_font = pg.font.Font('resources/textutil/wackyfont.ttf', 150)
+        self.chooselevel = True
+        self.mouseX, self.mouseY = pg.mouse.get_pos()
+        self.buttons = []
+        self.buttons.append(MenuButton(self, (HALF_WIDTH - 600, 350), 300, 75, "Building 1", self.play_button))
+        
+    def update(self):
+        self.mouseX, self.mouseY = pg.mouse.get_pos()
+        self.mouseX *= RatioWidth
+        self.mouseY *= RatioHeight * 1.22
+        
+    def drawtitle(self):
+        text = self.wacky_font.render("Building Selector", False, 'black')
+
+        x, y = 375, 60
+
+        self.screen.blit(text, (x,y))
+
+    def play_button(self):
+        self.chooselevel = False
+
+    def run(self):
+        self.screen.fill('skyblue')
+        self.drawtitle()
+        
+        while self.chooselevel:
+            self.update()
+            [but.update() for but in self.buttons]
+            [but.draw() for but in self.buttons]
+            self.click_checks()
+
+            transcreen = pg.transform.scale(self.screen, ACTUALRES)
+            self.mainscreen.blit(transcreen, (0, 0))
+
+            pg.display.flip()
+            
+    def click_checks(self):
+        for event in pg.event.get():
+            if event.type == pg.MOUSEBUTTONDOWN:
+                [but.mouseClick() for but in self.buttons]
+            
+        
 
 ###GAME CODE###
 
@@ -2766,6 +2816,9 @@ if __name__ == '__main__':
 
     start_menu = StartMenu()
     start_menu.run()
+    
+    levelselector = levelselector()
+    levelselector.run()
     
     game = Game()
     game.run()
