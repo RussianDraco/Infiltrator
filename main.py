@@ -759,7 +759,7 @@ class Map:
         self.world_map = {}
         self.rows = len(self.cur_map)
         self.cols = len(self.cur_map[0])
-        self.current_level = 1
+        self.current_level = 11
         self.inBase = True
 
         self.generator = MazeGenerator()
@@ -1643,6 +1643,7 @@ class ObjectHandler:
                 self.add_sprite(SpriteObject(self.game, sprit[0], (sprit[1][0], sprit[1][1]), sprit[2], sprit[3]))
 
         if "pickups" in spawndict:
+            print("a")
             pickar = spawndict["pickups"]
 
             for pick in pickar:
