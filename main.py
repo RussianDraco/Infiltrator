@@ -2740,7 +2740,7 @@ class Game:
                 self.object_renderer.popup_update()
 
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_F4:
+                if event.key == pg.K_F4 or event.key == pg.K_BACKSLASH:
                     pg.quit()
                     sys.exit()
                 else:
