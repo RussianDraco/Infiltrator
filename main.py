@@ -2327,13 +2327,10 @@ class StartMenu:
     def run(self):
         self.buttons.append(MenuButton(self, (HALF_WIDTH - 75, 300), 150, 75, "Play", self.play_button))
         self.buttons.append(MenuButton(self, (HALF_WIDTH - 100, 400), 200, 75, "Credits", self.credits_button))
-        self.buttons.append(MenuButton(self, (HALF_WIDTH - 125, 500), 250, 75, "View Lore", self.play_lore))
-        self.buttons.append(MenuButton(self, (HALF_WIDTH - 95, 600), 190, 75, "Options", self.options_button))
-        self.buttons.append(MenuButton(self, (HALF_WIDTH - 75, 700), 150, 75, "Exit", self.exit_button))
-
+        self.buttons.append(MenuButton(self, (HALF_WIDTH - 95, 500), 190, 75, "Options", self.options_button))
+        self.buttons.append(MenuButton(self, (HALF_WIDTH - 75, 600), 150, 75, "Exit", self.exit_button))
         self.buttons.append(MenuButton(self, (1300, 75), 50, 50, "X", self.X_credits_button))
         self.buttons.append(MenuButton(self, (1300, 75), 50, 50, "X", self.X_options_button))
-
         self.buttons.append(MenuButton(self, (HALF_WIDTH - 200, 300), 400, 75, "Mouse Turning", self.mouse_turning, tag="options"))
         self.buttons.append(MenuButton(self, (HALF_WIDTH - 200, 400), 400, 75, "Key Turning", self.key_turning, tag="options"))
 
@@ -2607,8 +2604,8 @@ class Game:
 if __name__ == '__main__':
     pg.init()
 
-    #start_menu = StartMenu()
-    #start_menu.run()
+    start_menu = StartMenu()
+    start_menu.run()
     
     game = Game()
     game.run()
