@@ -116,13 +116,14 @@ MouseRotation_Setting = False
 
 ##STATS##
 class Stats: #just a class to store npc stats
-    def __init__(self, vision_dist, suspicion_lvl, speed, minsus, follower = False, size = 1):
+    def __init__(self, vision_dist, suspicion_lvl, speed, minsus, random_walk = False, follower = False, size = 1):
         self.vision_dist = vision_dist #how far the enemy can see the player
         self.suspicion_lvl = suspicion_lvl #how suspicious the npc gets of the player (1-5)
         self.speed = speed #how fast the enemy walks
         self.follower = follower
         self.minsus = minsus
         self.size = size
+        self.random_walk = random_walk
 
 ##ITEMS##
 class Item:
@@ -184,7 +185,8 @@ ENEMIES = {
             vision_dist = 1,
             suspicion_lvl = 2,
             speed = 0.01,
-            minsus = 9
+            minsus = 9,
+            random_walk = True
         )
     },
     "secretary": {
@@ -624,7 +626,9 @@ BASE_DATA = {
         ],
         "passive": [],
         "sprites": [
-            ['resources/sprites/static/table.png', [2.5, 2.5], 0.25, 1.4]
+            ['resources/sprites/static/coolio.png', [4.5, 4.5], 0.7, 0.5],
+            ['resources/sprites/static/plant.png', [3.5, 3.5], 0.4, 1],
+            ['resources/sprites/static/plant2.png', [5.5, 5.5], 0.5, 0.7]
             #['resources/sprites/static/candlebra.png', [2.5, 2.5], 0.25, 1.4]
         ],
         "pickups": [
@@ -1619,6 +1623,8 @@ class NPC(AnimatedSprite):
 
         self.current_atk = None
 
+        self.random_engine = None
+
         if stats == None:
             self.vision_dist = 2
             self.suspicion_lvl = 0.03
@@ -1631,6 +1637,8 @@ class NPC(AnimatedSprite):
             self.size = stats.size
             self.follower = stats.follower
             self.minsus = stats.minsus
+            if stats.random_walk:
+                self.random_engine = NPCRandomMovement(self.game, self, self.movement)
 
         self.alive = True
 
@@ -1664,6 +1672,9 @@ class NPC(AnimatedSprite):
 
     #update npc
     def update(self):
+        if self.random_engine != None:
+            self.random_engine.update()
+
         self.check_animation_time()
         self.get_sprite()
         self.run_logic()
@@ -1817,8 +1828,24 @@ class NPCRandomMovement():
         self.time_between_moves = randint(2000, 9000)
         self.time_from_last_move = 0
 
+        self.goal = self.get_goal()
+
+        self.walking = False
+
     def update(self):
-        pass
+        if pg.time.get_ticks() - self.time_from_last_move >= self.time_between_moves and not self.walking:
+            self.goal = self.get_goal()
+            self.walking = True
+        elif self.walking:
+            self.move(nonplayer = True, otherCoord = self.game.pathfinding.get_path(self.npc.map_pos, self.goal))
+            gx, gy = self.goal
+            if distance_formula(self.npc.x, self.npc.y, gx, gy) <= 1:
+                self.walking = False
+                self.time_from_last_move = pg.time.get_ticks()
+                self.time_between_moves = randint(2000, 9000)
+
+    def get_goal(self):
+        return choice(self.game.pathfinding.free_cords)
 
         
 ###PATHFINDING ###
@@ -1832,11 +1859,15 @@ class PathFinding:
         self.ways = [-1, 0], [0, -1], [1, 0], [0, 1], [-1, -1], [1, -1], [1, 1], [-1, 1]
         self.graph = {}
         self.get_graph()
+        self.free_cords = []
+        self.get_free_cords()
 
     def reset_pathfinding(self, newmap):
         self.map = newmap
         self.graph = {}
         self.get_graph()
+        self.free_cords = []
+        self.get_free_cords()
 
     #main function, returns the next square to move to, to optimally reach goal from start
     def get_path(self, start, goal):
@@ -1887,6 +1918,12 @@ class PathFinding:
             for x, col in enumerate(row):
                 if not col:
                     self.graph[(x, y)] = self.graph.get((x, y), []) + self.get_next_nodes(x, y)
+
+    def get_free_cords(self):
+        for y, row in enumerate(self.map):
+            for x, col in enumerate(row):
+                if not col:
+                    self.free_cords.append((x, y))
 
 
 ###DISPLAY MENU###
@@ -2613,13 +2650,13 @@ class Game:
     def new_game(self):
         self.sound_player = SoundPlayer(); self.sound_player.play_sound("theme", volume=0.2, loop=True)
         self.map = Map(self)
+        self.pathfinding = PathFinding(self)
         self.player = Player(self)
         self.inventory_system = InventorySystem(self)
         self.object_renderer = ObjectRenderer(self)
         self.raycasting = RayCasting(self)
         self.object_handler = ObjectHandler(self)
         self.sound = Sound(self)
-        self.pathfinding = PathFinding(self)
         self.statbar = StatBar(self)
         self.text_box = TextBox(self, 200, HALF_HEIGHT + HALF_HEIGHT // 2, HALF_WIDTH + HALF_WIDTH // 2, HALF_HEIGHT // 2)
         self.display_menu = DisplayMenu(self)
