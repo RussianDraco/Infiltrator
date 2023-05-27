@@ -79,7 +79,7 @@ PLAYER_SIZE_SCALE = 60
 
 #stamina stuff
 PLAYER_MAX_STAMINA = 100
-STAMINA_RECOVERY_DELAY = 500
+STAMINA_RECOVERY_DELAY = 250
 
 #inventory
 INVENTORY_SIZE = 9
@@ -2766,7 +2766,7 @@ class Game:
                 self.object_renderer.popup_update()
 
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_F4:
+                if event.key == pg.K_F4 or event.key == pg.K_BACKSLASH:
                     pg.quit()
                     sys.exit()
                 else:
