@@ -118,10 +118,11 @@ MouseRotation_Setting = False
 
 ##STATS##
 class Stats: #just a class to store npc stats
-    def __init__(self, vision_dist, suspicion_lvl, speed, size = 1):
+    def __init__(self, vision_dist, suspicion_lvl, speed, follower = False, size = 1):
         self.vision_dist = vision_dist #how far the enemy can see the player
         self.suspicion_lvl = suspicion_lvl #how suspicious the npc gets of the player (1-5)
         self.speed = speed #how fast the enemy walks
+        self.follower = follower
         self.size = size
 
 ##ITEMS##
@@ -174,6 +175,8 @@ class Player:
         self.rel = pg.mouse.get_rel()[0]
         self.time_prev = pg.time.get_ticks()
         self.canMove = True
+
+        self.stealth = 0
 
         self.inventoryOpen = False
 
@@ -259,7 +262,7 @@ class Player:
     def check_wall(self, x, y):
         #for now empty colliders(bloated goblin) only work in base
         if self.game.map.inBase:
-            return (x, y) not in self.game.map.world_map and not (x, y) in ALL_EMPTY_COLLIDER
+            return (x, y) not in self.game.map.world_map# and not (x, y) in ALL_EMPTY_COLLIDER
         else:
             return (x, y) not in self.game.map.world_map
     
@@ -710,14 +713,6 @@ class Map:
         except AttributeError:
             self.need_to_load = lvlspawn
 
-        if self.game.object_handler.hut_boss != None:
-            self.game.sound_player.stop_sound("theme")
-            self.game.sound_player.play_sound("themealt")
-        elif self.game.object_handler.boss != None:
-            self.game.sound_player.stop_sound("theme")
-            self.game.sound_player.stop_sound("themealt")
-            self.game.sound_player.play_sound("themeboss")
-
     def load_synthetic_map(self, synthmap, portal, spawndict): #for generated maps
         lvlmap = synthmap
 
@@ -732,13 +727,11 @@ class Map:
 
     #minimap thinkgy
     def draw(self):
-        self.mmsurface.fill('black')
-
-        self.mmxoffset = -self.game.player.x; self.mmyoffset = -self.game.player.y
-
-        [pg.draw.rect(self.mmsurface, 'darkgray', (pos[0] * 20 + self.mmxoffset * 20 + 50, pos[1] * 20 + self.mmyoffset * 20 + 50, 20, 20), 2) for pos in self.world_map]
-
-        self.game.screen.blit(self.mmsurface, (50, 550))
+        pass
+    #    self.mmsurface.fill('black')
+    #    self.mmxoffset = -self.game.player.x; self.mmyoffset = -self.game.player.y
+    #    [pg.draw.rect(self.mmsurface, 'darkgray', (pos[0] * 20 + self.mmxoffset * 20 + 50, pos[1] * 20 + self.mmyoffset * 20 + 50, 20, 20), 2) for pos in self.world_map]
+    #    self.game.screen.blit(self.mmsurface, (50, 550))
         
 
 ###RAYCASTING###
@@ -1052,7 +1045,7 @@ class ObjectRenderer:
         self.sky_offset = 0
         self.blood_screen = pg.transform.scale(pg.image.load('resources/sprites/blood.png'), (WIDTH, HEIGHT)); self.blood_screen.set_alpha(100)
         #self.gameoverImg = 
-        self.portal_frames = [self.get_texture('resources/textures/staircase.png')]
+        self.portal_frames = [self.get_texture('resources/textures/elevator.png')]
 
         self.portal_frame_n = 0
         self.random_frame_n = 0
@@ -1157,7 +1150,7 @@ class ObjectRenderer:
     def load_wall_textures(self):
         #for every item in the textures dir that ends with .png and whos name is numeric, add it to the directory as a value with its number as its key
         out_dict = {int(pth.replace('.png', '')) : self.get_texture(f'resources/textures/' + pth) for pth in os.listdir('resources/textures') if pth.endswith('.png') and pth.replace('.png', '').isnumeric()}
-        out_dict["p"] = self.get_texture('resources/textures/staircase.png')
+        out_dict["p"] = self.get_texture('resources/textures/elevator.png')
         return out_dict
 
 
@@ -1498,11 +1491,6 @@ class ObjectHandler:
 
                 self.add_npc(NPC(self.game, enemy_data["path"], npcspawn, enemy_data["scale"], enemy_data["shift"], enemy_data["animation_time"], enemy_data["stats"], none_get(enemy_data, "drops")))
 
-                if npctype == "mobboss":
-                    self.boss = self.npc_list[-1]
-                elif npctype == "hut":
-                    self.hut_boss = self.npc_list[-1]
-
         if "passive" in spawndict:
             passar = spawndict["passive"]
 
@@ -1597,6 +1585,18 @@ class NPC(AnimatedSprite):
 
         self.current_atk = None
 
+        if stats == None:
+            self.vision_dist = 2
+            self.suspicion_lvl = 0.03
+            self.speed = 1
+            self.size = 100
+        else:
+            self.vision_dist = stats.vision_dist
+            self.suspicion_lvl = stats.suspicion_lvl
+            self.speed = stats.speed
+            self.size = stats.size
+            self.follower = stats.follower
+
         self.alive = True
 
         #gets all its animations's frame
@@ -1618,6 +1618,8 @@ class NPC(AnimatedSprite):
         self.player_search_trigger = False
 
         self.drops = drops
+
+        self.genStealth = False
 
         self.bond_npc = None if life_bond == None else life_bond
 
@@ -1666,10 +1668,13 @@ class NPC(AnimatedSprite):
             self.ray_cast_value = self.ray_cast_player_npc() 
 
             #if saw player, start hunting him down and moving torwards him, starts pathfinding algo
-            if self.ray_cast_value:
+            if self.ray_cast_value and self.follower or (not self.genStealth and self.ray_cast_value):
+                if not self.genStealth:
+                    self.genStealth = True
+                    self.game.player.stealth += self.suspicion_lvl
                 self.player_search_trigger = True
 
-            elif self.player_search_trigger:
+            elif self.player_search_trigger and self.follower: #add 'or' for adding an option for follow if stealth too high
                 if not self.walk_images == None:
                     self.animate(self.walk_images)
                 self.movement()
@@ -2569,9 +2574,9 @@ class Game:
 
         self.pawn_shop.draw()
 
-        #debugin thingy
-        self.map.draw()
-        self.player.draw()
+        #minimap thingy
+        #self.map.draw()
+        #self.player.draw()
 
         pg.transform.scale(self.screen, ACTUALRES, self.mainscreen)
 
