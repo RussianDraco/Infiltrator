@@ -1,9 +1,6 @@
 ###NOTICES/INFORMATION###
-#inspired by coder space on yt
+# inspired by Micheal Reeves
 
-#textures: https://www.doomworld.com/afterglow/textures/
-
-#
 
 """
 To make it easier to navigate, the code is separated into sections with triple hashtag comments
@@ -1159,7 +1156,7 @@ class ObjectRenderer:
         else:
             font_size = (6-dist) * 10
 
-        doom_font = pg.font.Font('resources/textutil/doomfont.ttf', int(font_size*2))
+        doom_font = pg.font.Font('resources/textutil/wackyfont.ttf', int(font_size*2))
 
         excl = doom_font.render("!", False, (255, 0, 0))
 
@@ -1917,7 +1914,7 @@ class InventoryIcon:
 
         icon_img = pg.transform.scale(icon_img, (SLOT_X - 6, SLOT_Y - 6))
 
-        doom_font = pg.font.Font('resources/textutil/doomfont.ttf', 25)
+        doom_font = pg.font.Font('resources/textutil/wackyfont.ttf', 25)
 
         if self.quantity > 1:
             quantity_txt = doom_font.render(str(self.quantity), False, (0, 0, 0))
@@ -2288,7 +2285,7 @@ class StatBar:
     def __init__(self, game):
         self.game = game
         self.screen = game.screen
-        self.doom_font = pg.font.Font('resources/textutil/doomfont.ttf', 80)
+        self.doom_font = pg.font.Font('resources/textutil/wackyfont.ttf', 80)
 
     def draw(self):
         #pg.draw.rect(self.screen, FLOOR_COLOR, (0, HALF_HEIGHT, WIDTH, HEIGHT))
