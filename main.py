@@ -991,6 +991,8 @@ class TextBox:
 
         self.current_pitch = ""
 
+        self.showing = False
+
         self.talk_source = None
 
         #sound players for when you talk to person
