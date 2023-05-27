@@ -77,6 +77,10 @@ PLAYER_SPEED = 0.0055
 PLAYER_ROT_SPEED = 0.002
 PLAYER_SIZE_SCALE = 60
 
+#stamina stuff
+PLAYER_MAX_STAMINA = 100
+STAMINA_RECOVERY_DELAY = 500
+
 #inventory
 INVENTORY_SIZE = 9
 
@@ -228,6 +232,11 @@ class Player:
         self.canMove = True
 
         self.stealth = 0
+        self.stamina = PLAYER_MAX_STAMINA
+
+        self.time_prev = pg.time.get_ticks()
+
+        self.floor_level = 0
 
         self.inventoryOpen = False
 
@@ -256,6 +265,16 @@ class Player:
             self.game.map.entered_portal(True)
             return True
         return False
+    
+    def check_stamina_recovery_delay(self):
+        time_now = pg.time.get_ticks()
+        if time_now - self.time_prev > STAMINA_RECOVERY_DELAY:
+            self.time_prev = time_now
+            return True
+
+    def recover_health(self):
+        if self.check_stamina_recovery_delay() and self.stamina < PLAYER_MAX_STAMINA:
+            self.stamina += 1
 
     #function to move player
     def movement(self):
@@ -273,7 +292,11 @@ class Player:
         keys = self.game.keys
 
         if keys[pg.K_LSHIFT]:
-            speed = PLAYER_SPEED * self.game.delta_time * 1.25 
+            if self.game.player.stamina >= 5:
+                self.game.player.stamina -= 1
+                speed = PLAYER_SPEED * self.game.delta_time * 1.25 
+            else:
+                speed = PLAYER_SPEED * self.game.delta_time
         else:
             speed = PLAYER_SPEED * self.game.delta_time
 
@@ -1671,7 +1694,7 @@ class NPC(AnimatedSprite):
 
     #update npc
     def update(self):
-        if self.random_engine != None:
+        if self.random_engine != None and not self.player_search_trigger:
             self.random_engine.update()
 
         self.check_animation_time()
@@ -2361,6 +2384,9 @@ class StatBar:
 
         health = wacky_font.render("Suspicion: " + str(self.game.player.stealth), False, SUSFONT_COLOR)
         self.screen.blit(health, (20, HEIGHT + 40))
+
+        health = wacky_font.render("Stamina: " + str(self.game.player.stamina), False, SUSFONT_COLOR)
+        self.screen.blit(health, (400, HEIGHT + 40))
 
 ###############################START MENU#################################
 
