@@ -1687,6 +1687,7 @@ class SoundPlayer:
         self.load_sound('alert', 'resources/sound/alert.mp3')
         self.load_sound('vineboom', 'resources/sound/vineboom.mp3')
         self.load_sound('theme', 'resources/sound/infiltheme.wav')
+        self.load_sound('goofy', 'resources/sound/goofy.mp3')
 
     def load_sound(self, sound_name, sound_file_path):
         self.sounds[sound_name] = pg.mixer.Sound(sound_file_path)
@@ -2820,6 +2821,8 @@ class Game:
 
     def lose_game(self):
         self.object_renderer.game_over()
+        self.sound_player.stop_sound('theme')
+        self.sound_player.play_sound('goofy', loop = False)
 
         pg.transform.scale(self.screen, ACTUALRES, self.mainscreen)
 
