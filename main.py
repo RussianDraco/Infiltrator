@@ -116,11 +116,12 @@ MouseRotation_Setting = False
 
 ##STATS##
 class Stats: #just a class to store npc stats
-    def __init__(self, vision_dist, suspicion_lvl, speed, follower = False, size = 1):
+    def __init__(self, vision_dist, suspicion_lvl, speed, minsus, follower = False, size = 1):
         self.vision_dist = vision_dist #how far the enemy can see the player
         self.suspicion_lvl = suspicion_lvl #how suspicious the npc gets of the player (1-5)
         self.speed = speed #how fast the enemy walks
         self.follower = follower
+        self.minsus = minsus
         self.size = size
 
 ##ITEMS##
@@ -146,7 +147,8 @@ ENEMIES = {
         "stats" : Stats(
             vision_dist = 2,
             suspicion_lvl = 2,
-            speed = 1
+            speed = 0.05,
+            minsus = 6
         )
     },
     "janitor": {
@@ -157,7 +159,32 @@ ENEMIES = {
         "stats" : Stats(
             vision_dist = 1,
             suspicion_lvl = 1,
-            speed = 1
+            speed = 0.05,
+            minsus = 10
+        )
+    },
+    "coffeeman": {
+        "path" : 'resources/sprites/npc/coffeeman/0.png',
+        "scale": 0.6,
+        "shift" : 0.38,
+        "animation_time" : 180,
+        "stats" : Stats(
+            vision_dist = 3,
+            suspicion_lvl = 2,
+            speed = 0.1,
+            minsus = 5
+        )
+    },
+    "octopus": {
+        "path" : 'resources/sprites/npc/octopus/0.png',
+        "scale": 0.6,
+        "shift" : 0.38,
+        "animation_time" : 180,
+        "stats" : Stats(
+            vision_dist = 1,
+            suspicion_lvl = 2,
+            speed = 0.05,
+            minsus = 9
         )
     }
 }
@@ -565,11 +592,13 @@ BASE_DATA = {
     "spawns": {
         "npc": [
             ["janitor", [3.5, 3.5]],
-            ["businessman", [2.5, 2.5]]
+            ["businessman", [2.5, 2.5]],
+            ["coffeeman", [4.5, 2.5]],
+            ["octopus", [4.5, 3.5]]
         ],
         "passive": [],
         "sprites": [
-            ['resources/sprites/static/table.png', [2.5, 2.5], 1, 1.4]
+            ['resources/sprites/static/table.png', [2.5, 2.5], 0.25, 1.4]
             #['resources/sprites/static/candlebra.png', [2.5, 2.5], 0.25, 1.4]
         ],
         "pickups": [
@@ -1590,6 +1619,7 @@ class NPC(AnimatedSprite):
             self.speed = stats.speed
             self.size = stats.size
             self.follower = stats.follower
+            self.minsus = stats.minsus
 
         self.alive = True
 
@@ -1661,14 +1691,20 @@ class NPC(AnimatedSprite):
             #check if there is a clear line of sight between player and npc
             self.ray_cast_value = self.ray_cast_player_npc() 
 
+            if self.game.player.stealth >= self.minsus and distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist:
+                self.exclaimed = True
+                self.player_search_trigger = True
+            else:
+                self.exclaimed = False
+                self.player_search_trigger = False
+
             #if saw player, start hunting him down and moving torwards him, starts pathfinding algo
             if self.ray_cast_value and self.follower or (not self.genStealth and self.ray_cast_value and distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist):
                 if not self.genStealth:
                     self.genStealth = True
                     self.game.player.stealth += self.suspicion_lvl
-                self.player_search_trigger = True
 
-            elif self.player_search_trigger and self.follower: #add 'or' for adding an option for follow if stealth too high
+            elif self.player_search_trigger: #add 'or' for adding an option for follow if stealth too high
                 if not self.walk_images == None:
                     self.animate(self.walk_images)
                 self.movement()
