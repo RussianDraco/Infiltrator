@@ -116,6 +116,14 @@ ICON_WIDTH, ICON_HEIGHT = 80, 80
 #changeable settings
 MouseRotation_Setting = False
 
+##STATS##
+class Stats: #just a class to store npc stats
+    def __init__(self, vision_dist, suspicion_lvl, speed, size):
+        self.vision_dist = vision_dist #how far the enemy can see the player
+        self.suspicion_lvl = suspicion_lvl #how suspicious the npc gets of the player (1-5)
+        self.speed = speed #how fast the enemy walks
+        self.size = size
+
 ##ITEMS##
 class Item:
     def __init__(self, name, icon, id, desc=""):
@@ -138,6 +146,24 @@ ITEM_DICT = {
 # ]
 #]
 
+#dict describing all the enemies
+ENEMIES = {
+    #guy who opens his mouth
+    "basic": {
+        "path" : 'resources/sprites/npc/basic/0.png',
+        "scale": 0.6,
+        "shift" : 0.38,
+        "animation_time" : 180,
+        "stats" : Stats(
+            attack_dist = 2,
+            speed = 0.04,
+            size = 1,
+            health = 150,
+            attack_dmg = 15,
+            accuracy = 0.6
+        )
+    }
+}
 ###PLAYER###
 
 #player class
@@ -517,15 +543,15 @@ base_map = [
     [1, _, _, _, _, _, _, _, _, _, 2, _, _, _, 2, 1],
     [1, _, _, _, _, _, _, _, _, _, 2, _, _, _, _, 1],
     [1, _, _, _, _, _, _, _, _, _, 3, 2, 2, 2, _, 1],
-    [1, 1, _, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, _, 1],
-    [3, _, _, _, _, _, _, 3, 1, _, _, _, _, _, _, 1],
-    [1, _, _, _, _, _, _, 5, 1, _, _, _, _, _, _, 1],
-    [5, _, _, _, _, _, _, 5, 1, _, _, _, _, _, _, 1],
-    [5, _, _, _, _, _, _, 5, 1, _, _, _, _, _, _, 1],
-    [5, _, _, _, _, _, _, 5, 1, _, _, _, _, _, _, 1],
-    [5, _, _, _, _, _, _, 5, 1, _, _, _, _, _, _, 1],
-    [5, _, _, _, _, _, _, 5, 1, _, _, _, _, _, _, 1],
-    [1, 1, 1, 1, 1, 5, 5, 1, 1, 1, 1, 1, 1, 1, R, 1]
+    [1, 1, _, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [3, _, _, _, _, _, _, 3, 1, _, _, _, _, _, _, _],
+    [1, _, _, _, _, _, _, 5, 1, _, _, _, _, _, _, _],
+    [5, _, _, _, _, _, _, 5, 1, _, _, _, _, _, _, _],
+    [5, _, _, _, _, _, _, 5, 1, _, _, _, _, _, _, _],
+    [5, _, _, _, _, _, _, 5, 1, _, _, _, _, _, _, _],
+    [5, _, _, _, _, _, _, 5, 1, _, _, _, _, _, _, _],
+    [5, _, _, _, _, _, _, 5, 1, _, _, _, _, _, _, _],
+    [1, 1, 1, 1, 1, 5, 5, 1, 1, _, _, _, _, _, _, _]
     #0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
 ]
 
