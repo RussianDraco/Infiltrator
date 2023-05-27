@@ -745,7 +745,9 @@ class Map:
             self.game.pathfinding.reset_pathfinding(self.cur_map)
             self.current_level += 1
         except KeyError:
-            print("No next level")
+            print("Game won")
+            self.game.win_game()
+
         #self.inBase = False
         #else:
         #    self.game.player.teleport(BASE_DATA["spawn"])
