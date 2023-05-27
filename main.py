@@ -1146,18 +1146,6 @@ class ObjectRenderer:
         #floor
         pg.draw.rect(self.screen, FLOOR_COLOR, (0, HALF_HEIGHT, WIDTH, HEIGHT))
 
-    def show_exclaim(self, x, y, dist):
-        if dist > 5:
-            return
-        else:
-            font_size = (6-dist) * 10
-
-        wacky_font = pg.font.Font('resources/textutil/wackyfont.ttf', int(font_size*2))
-
-        excl = wacky_font.render("!", False, (255, 0, 0))
-
-        self.screen.blit(excl, (x, y))
-
     #loop through objects to render, render them
     def render_game_objects(self):
         list_objects = sorted(self.game.raycasting.objects_to_render, key=lambda t: t[0], reverse = True)
@@ -1345,11 +1333,7 @@ class BasicPassiveNPC(SpriteObject):
                     self.nextlinequery.pop(0)
 
     def update_sub(self):
-        if self.exclamation:
-            #buncha math to mesure the y axis to place the exclamation
-            proj_height = SCREEN_DIST / self.norm_dist * self.SPRITE_SCALE
-            posy = HALF_HEIGHT - proj_height //2 + proj_height * self.SPRITE_HEIGHT_SHIFT
-            self.game.object_renderer.show_exclaim(self.screen_x, posy, distance_formula(self.game.player.x, self.game.player.y, self.x, self.y))
+        pass
 
         #if within range, allow talk
         if self.player_in_range() and self.interact_enabled:
@@ -1693,10 +1677,8 @@ class NPC(AnimatedSprite):
             self.ray_cast_value = self.ray_cast_player_npc() 
 
             if self.game.player.stealth >= self.minsus and distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist:
-                self.exclaimed = True
                 self.player_search_trigger = True
             else:
-                self.exclaimed = False
                 self.player_search_trigger = False
 
             #if saw player, start hunting him down and moving torwards him, starts pathfinding algo
