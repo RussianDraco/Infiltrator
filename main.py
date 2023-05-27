@@ -118,7 +118,7 @@ MouseRotation_Setting = False
 
 ##STATS##
 class Stats: #just a class to store npc stats
-    def __init__(self, vision_dist, suspicion_lvl, speed, size):
+    def __init__(self, vision_dist, suspicion_lvl, speed, size = 1):
         self.vision_dist = vision_dist #how far the enemy can see the player
         self.suspicion_lvl = suspicion_lvl #how suspicious the npc gets of the player (1-5)
         self.speed = speed #how fast the enemy walks
@@ -136,31 +136,18 @@ class Item:
 ITEM_DICT = {
 }
 
-#enemy drop system
-#how drops array works:
-#[
-# [
-#  item id,
-#  drop chance 0-100, the higher number -> the higher chance of getting it
-#  number of drops: an array of min-max ||OR|| single integer for the number of drops
-# ]
-#]
-
 #dict describing all the enemies
 ENEMIES = {
     #guy who opens his mouth
-    "basic": {
-        "path" : 'resources/sprites/npc/basic/0.png',
+    "businessman": {
+        "path" : 'resources/sprites/npc/businessman/0.png',
         "scale": 0.6,
         "shift" : 0.38,
         "animation_time" : 180,
         "stats" : Stats(
-            attack_dist = 2,
-            speed = 0.04,
-            size = 1,
-            health = 150,
-            attack_dmg = 15,
-            accuracy = 0.6
+            vision_dist = 1,
+            suspicion_lvl = 1,
+            speed = 1
         )
     }
 }
@@ -890,9 +877,9 @@ class TextBox:
         self.talk_source = None
 
         #sound players for when you talk to person
-        self.game.sound_player.load_sound('high', 'resources/sound/highmur.wav')
-        self.game.sound_player.load_sound('mid', 'resources/sound/midmur.wav')
-        self.game.sound_player.load_sound('deep', 'resources/sound/deepmur.wav')
+        #self.game.sound_player.load_sound('high', 'resources/sound/highmur.wav')
+        #self.game.sound_player.load_sound('mid', 'resources/sound/midmur.wav')
+        #self.game.sound_player.load_sound('deep', 'resources/sound/deepmur.wav')
 
         #mesures the time you stopped taking with textbox so that you arent stuck in a talking loop(after you finish talking, the person talks again when you clicked to close the textbox)
         self.last_talk = 0
@@ -1054,11 +1041,7 @@ class ObjectRenderer:
         self.sky_offset = 0
         self.blood_screen = pg.transform.scale(pg.image.load('resources/sprites/blood.png'), (WIDTH, HEIGHT)); self.blood_screen.set_alpha(100)
         #self.gameoverImg = 
-        self.portal_frames = [self.get_texture('resources/textures/portal/0.png'), self.get_texture('resources/textures/portal/1.png'), 
-                              self.get_texture('resources/textures/portal/2.png'), self.get_texture('resources/textures/portal/3.png')]
-        
-        self.random_frames = [self.get_texture('resources/textures/random/0.png'), self.get_texture('resources/textures/random/1.png'), 
-                              self.get_texture('resources/textures/random/2.png'), self.get_texture('resources/textures/random/3.png')]
+        self.portal_frames = [self.get_texture('resources/textures/staircase.png')]
 
         self.portal_frame_n = 0
         self.random_frame_n = 0
@@ -1072,7 +1055,6 @@ class ObjectRenderer:
         self.popup_d = {}
 
         self.gameoverImg = pg.transform.scale(pg.image.load("resources/sprites/gameover.png"), (WIDTH, HEIGHT + SHEIGHT))
-        self.win_screen = pg.transform.scale(pg.image.load("resources/sprites/winscreen.png"), (WIDTH, HEIGHT + SHEIGHT))
 
         self.npc_talk_dict = {} #array for all passive npcs to specify if they need the talk text to show or not
 
@@ -1112,14 +1094,6 @@ class ObjectRenderer:
             if not val == False:
                 needTalk = self.needTalk_font.render("E to talk to " + val[0], False, (255, 255, 255))
                 self.game.screen.blit(needTalk, (val[1] - 200, HEIGHT))
-
-    def next_portal_frame(self):
-        px, py = self.game.player.map_pos
-        if distance_formula(PORTAL_X, PORTAL_Y, px, py) < 10:
-            self.portal_frame_n += 1; self.portal_frame_n %= 4
-            self.random_frame_n += 1; self.random_frame_n %= 4
-            self.wall_textures["p"] = self.portal_frames[self.portal_frame_n]
-            self.wall_textures["r"] = self.random_frames[self.random_frame_n]
 
     #if you lost, show lose screen
     def game_over(self): self.screen.blit(self.gameoverImg, (0, 0))
@@ -1172,19 +1146,8 @@ class ObjectRenderer:
     def load_wall_textures(self):
         #for every item in the textures dir that ends with .png and whos name is numeric, add it to the directory as a value with its number as its key
         out_dict = {int(pth.replace('.png', '')) : self.get_texture(f'resources/textures/' + pth) for pth in os.listdir('resources/textures') if pth.endswith('.png') and pth.replace('.png', '').isnumeric()}
-        out_dict["p"] = self.get_texture('resources/textures/portal/0.png')
-        out_dict["r"] = self.get_texture('resources/textures/random/0.png')
+        out_dict["p"] = self.get_texture('resources/textures/staircase.png')
         return out_dict
-
-        return {
-            1: self.get_texture('resources/textures/1.png'),
-            2: self.get_texture('resources/textures/2.png'),
-            3: self.get_texture('resources/textures/3.png'),
-            4: self.get_texture('resources/textures/4.png'),
-            5: self.get_texture('resources/textures/5.png'),
-            "p": self.get_texture('resources/textures/portal/0.png'),
-            "r": self.get_texture('resources/textures/random/0.png')
-        }
 
 
 ###SPRITE OBJECTS###
@@ -1582,7 +1545,6 @@ class Sound:
         self.game = game
         pg.mixer.init()
         self.path = 'resources/sound/'
-        self.shotgun = pg.mixer.Sound(self.path + 'throw.wav')
 
 class SoundPlayer:
     def __init__(self):
@@ -2538,7 +2500,7 @@ class Game:
     def win_game(self):
         self.object_renderer.show_win_screen()
 
-        self.sound_player.stop_sound("theme"); self.sound_player.load_sound("winning", 'resources/sound/win.wav'); self.sound_player.play_sound("winning", volume=0.4, loop=False)
+        #self.sound_player.stop_sound("theme"); self.sound_player.load_sound("winning", 'resources/sound/win.wav'); self.sound_player.play_sound("winning", volume=0.4, loop=False)
         
         pg.transform.scale(self.screen, ACTUALRES, self.mainscreen)
 
@@ -2576,7 +2538,12 @@ class Game:
         #self.animated_sprite.update()
         pg.display.flip()
         self.delta_time = self.clock.tick(FPS)
+<<<<<<< HEAD
         pg.display.set_caption(f'Infiltrator - {self.clock.get_fps() :.1f}')
+=======
+        pg.display.set_caption(f'SHROOM - {self.clock.get_fps() :.1f}')
+        #pg.display.set_icon(pg.image.load('resources/sprites/logo.png'))
+>>>>>>> 94335b2f9e6b29492c1aabbb2f82a762fb114f46
 
     #draws stuff
     def draw(self):
@@ -2611,9 +2578,6 @@ class Game:
                 self.next_char_trigger = True
                 self.object_renderer.popup_update()
 
-            elif event.type == self.portal_event:
-                self.object_renderer.next_portal_frame()
-
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_F4:
                     pg.quit()
@@ -2640,8 +2604,8 @@ class Game:
 if __name__ == '__main__':
     pg.init()
 
-    start_menu = StartMenu()
-    start_menu.run()
+    #start_menu = StartMenu()
+    #start_menu.run()
     
     game = Game()
     game.run()
