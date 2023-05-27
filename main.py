@@ -186,6 +186,18 @@ ENEMIES = {
             speed = 0.01,
             minsus = 9
         )
+    },
+    "secretary": {
+        "path" : 'resources/sprites/npc/secretary/0.png',
+        "scale": 0.6,
+        "shift" : 0.45,
+        "animation_time" : 180,
+        "stats" : Stats(
+            vision_dist = 1,
+            suspicion_lvl = 3,
+            speed = 0.01,
+            minsus = 4
+        )
     }
 }
 ###PLAYER###
@@ -594,7 +606,8 @@ BASE_DATA = {
             ["janitor", [3.5, 3.5]],
             ["businessman", [2.5, 2.5]],
             ["coffeeman", [4.5, 2.5]],
-            ["octopus", [4.5, 3.5]]
+            ["octopus", [4.5, 3.5]],
+            ["secretary", [5.5, 2.5]]
         ],
         "passive": [],
         "sprites": [
