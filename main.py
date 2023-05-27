@@ -141,7 +141,12 @@ class Item:
 
 #contains all the possible items
 ITEM_DICT = {
-    1 : Item("Disguise", 'resources/sprites/items/disguise.png', 1, "")
+    1 : Item("Disguise", 'resources/sprites/items/disguise.png', 1, ""),
+    2 : Item("Meme1", 'resources/sprites/memes/meme1.png', 2, ""),
+    3 : Item("Meme1", 'resources/sprites/memes/meme2.png', 3, ""),
+    4 : Item("Meme1", 'resources/sprites/memes/meme3.png', 4, ""),
+    5 : Item("Meme1", 'resources/sprites/memes/meme4.png', 5, ""),
+    6 : Item("Meme1", 'resources/sprites/memes/meme5.png', 6, "")
 }
 
 #dict describing all the enemies
