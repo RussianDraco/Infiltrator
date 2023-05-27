@@ -147,7 +147,7 @@ ENEMIES = {
         "stats" : Stats(
             vision_dist = 2,
             suspicion_lvl = 2,
-            speed = 0.05,
+            speed = 0.01,
             minsus = 6
         )
     },
@@ -159,7 +159,7 @@ ENEMIES = {
         "stats" : Stats(
             vision_dist = 1,
             suspicion_lvl = 1,
-            speed = 0.05,
+            speed = 0.01,
             minsus = 10
         )
     },
@@ -171,7 +171,7 @@ ENEMIES = {
         "stats" : Stats(
             vision_dist = 3,
             suspicion_lvl = 2,
-            speed = 0.1,
+            speed = 0.02,
             minsus = 5
         )
     },
@@ -183,7 +183,7 @@ ENEMIES = {
         "stats" : Stats(
             vision_dist = 1,
             suspicion_lvl = 2,
-            speed = 0.05,
+            speed = 0.01,
             minsus = 9
         )
     }
