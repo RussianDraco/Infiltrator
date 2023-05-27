@@ -1685,6 +1685,8 @@ class SoundPlayer:
 
         self.load_sound('disguise', 'resources/sound/disguise.mp3')
         self.load_sound('alert', 'resources/sound/alert.mp3')
+        self.load_sound('vineboom', 'resources/sound/vineboom.mp3')
+        self.load_sound('theme', 'resources/sound/infiltheme.wav')
 
     def load_sound(self, sound_name, sound_file_path):
         self.sounds[sound_name] = pg.mixer.Sound(sound_file_path)
@@ -1824,7 +1826,10 @@ class NPC(AnimatedSprite):
 
             if self.game.player.stealth >= self.minsus and distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist or self.game.player.criminal_stealth:
                 self.player_search_trigger = True
-                self.game.sound_player.play_sound("alert", loop = False)
+                if 'goku' in self.path:
+                    self.game.sound_player.play_sound("vineboom", loop = False)
+                else:
+                    self.game.sound_player.play_sound("alert", loop = False)
             else:
                 if self.player_search_trigger == True and not self.ray_cast_value and not distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist:
                     self.player_search_trigger = False
