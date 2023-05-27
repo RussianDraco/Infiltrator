@@ -1139,7 +1139,7 @@ class ObjectRenderer:
         else:
             self.sky_offset = (self.sky_offset + 4.5 * self.game.player.rel) % WIDTH
 
-        self.screen.fill('black')
+        self.screen.fill('skyblue')
         
         self.screen.blit(self.sky_image, (-self.sky_offset, 0))
         self.screen.blit(self.sky_image, (-self.sky_offset + WIDTH, 0))
@@ -2301,7 +2301,7 @@ class MenuButton:
         self.draw_button()
 
     def draw_button(self):
-        self.surf.fill('black')
+        self.surf.fill('skyblue')
         pg.draw.rect(self.surf, self.current_color, (0, 0, self.width, self.height), border_radius=5)
         self.surf.blit(self.button_txt, (self.width//2 - self.button_txt.get_width()//2, self.height//2 - self.button_txt.get_height()//2))
 
@@ -2340,7 +2340,7 @@ class StartMenu:
     def __init__(self):
         self.mainscreen = pg.display.set_mode(ACTUALRES, pg.FULLSCREEN)
         self.screen = pg.Surface((WIDTH, HEIGHT + SHEIGHT)) # not a swear word, stands for s height
-
+        self.screen.fill('skyblue')
         self.in_menu = True
         self.font = pg.font.Font(None, 65)
         self.mouseX, self.mouseY = pg.mouse.get_pos()
@@ -2348,6 +2348,7 @@ class StartMenu:
         self.inCredits = False
         self.inOptions = False
         self.credits = pg.image.load('resources/sprites/credits.png')
+        self.wacky_font = pg.font.Font('resources/textutil/wackyfont.ttf', 225)
 
     def update(self):
         self.mouseX, self.mouseY = pg.mouse.get_pos()
@@ -2360,6 +2361,7 @@ class StartMenu:
                 return but
 
     def run(self):
+        self.drawtitle()
         self.buttons.append(MenuButton(self, (HALF_WIDTH - 75, 300), 150, 75, "Play", self.play_button))
         self.buttons.append(MenuButton(self, (HALF_WIDTH - 100, 400), 200, 75, "Credits", self.credits_button))
         self.buttons.append(MenuButton(self, (HALF_WIDTH - 95, 500), 190, 75, "Options", self.options_button))
@@ -2433,10 +2435,10 @@ class StartMenu:
         sys.exit()
 
     def play_button(self):
-        self. in_menu = False
+        self.in_menu = False
         
     def options_button(self):
-        self.screen.fill('black')
+        self.screen.fill('skyblue')
 
         self.inOptions = True
         [but.changeHidden(True) for but in self.buttons]
@@ -2450,7 +2452,7 @@ class StartMenu:
         pg.display.flip()
 
     def credits_button(self):
-        self.screen.fill('black')
+        self.screen.fill('skyblue')
 
         self.inCredits = True
         [but.changeHidden(True) for but in self.buttons]
@@ -2463,7 +2465,7 @@ class StartMenu:
         pg.display.flip()
 
     def X_options_button(self):
-        self.screen.fill('black')
+        self.screen.fill('skyblue')
 
         self.inOptions = False
         [but.changeHidden(False) for but in self.buttons if but.functionToCall != self.X_credits_button]
@@ -2477,7 +2479,7 @@ class StartMenu:
         pg.display.flip()
 
     def X_credits_button(self):
-        self.screen.fill('black')
+        self.screen.fill('skyblue')
 
         self.inCredits = False
         [but.changeHidden(False) for but in self.buttons if not but.functionToCall == self.X_options_button and not but.tag == "options"]
@@ -2487,6 +2489,14 @@ class StartMenu:
         [but.draw() for but in self.buttons]
 
         pg.display.flip()
+        
+    def drawtitle(self):
+        appliedTxt = self.wacky_font.render("Infiltrator", False, 'black')
+
+        x, y = 360, 60
+
+        self.screen.blit(appliedTxt, (x,y))
+
 
 
 ###GAME CODE###
