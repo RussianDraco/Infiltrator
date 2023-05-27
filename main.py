@@ -118,10 +118,11 @@ MouseRotation_Setting = False
 
 ##STATS##
 class Stats: #just a class to store npc stats
-    def __init__(self, vision_dist, suspicion_lvl, speed, size = 1):
+    def __init__(self, vision_dist, suspicion_lvl, speed, follower = False, size = 1):
         self.vision_dist = vision_dist #how far the enemy can see the player
         self.suspicion_lvl = suspicion_lvl #how suspicious the npc gets of the player (1-5)
         self.speed = speed #how fast the enemy walks
+        self.follower = follower
         self.size = size
 
 ##ITEMS##
@@ -174,6 +175,8 @@ class Player:
         self.rel = pg.mouse.get_rel()[0]
         self.time_prev = pg.time.get_ticks()
         self.canMove = True
+
+        self.stealth = 0
 
         self.inventoryOpen = False
 
@@ -1592,6 +1595,7 @@ class NPC(AnimatedSprite):
             self.suspicion_lvl = stats.suspicion_lvl
             self.speed = stats.speed
             self.size = stats.size
+            self.follower = stats.follower
 
         self.alive = True
 
@@ -1614,6 +1618,8 @@ class NPC(AnimatedSprite):
         self.player_search_trigger = False
 
         self.drops = drops
+
+        self.genStealth = False
 
         self.bond_npc = None if life_bond == None else life_bond
 
@@ -1662,10 +1668,13 @@ class NPC(AnimatedSprite):
             self.ray_cast_value = self.ray_cast_player_npc() 
 
             #if saw player, start hunting him down and moving torwards him, starts pathfinding algo
-            if self.ray_cast_value:
+            if self.ray_cast_value and self.follower or (not self.genStealth and self.ray_cast_value):
+                if not self.genStealth:
+                    self.genStealth = True
+                    self.game.player.stealth += self.suspicion_lvl
                 self.player_search_trigger = True
 
-            elif self.player_search_trigger:
+            elif self.player_search_trigger and self.follower: #add 'or' for adding an option for follow if stealth too high
                 if not self.walk_images == None:
                     self.animate(self.walk_images)
                 self.movement()
