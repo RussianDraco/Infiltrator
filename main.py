@@ -206,7 +206,7 @@ class Player:
         self.inventoryOpen = False
 
         self.onPortal = False
-        self.onRandom = False
+        #self.onRandom = False
 
     def teleport(self, x, y = None):
         if type(x) == type(['a']):
@@ -332,7 +332,7 @@ class Player:
     #update function for player class
     def update(self):
         self.onPortal = self.portal_check()
-        self.onRandom = self.random_check()
+        #self.onRandom = self.random_check()
         self.movement()
 
         if MouseRotation_Setting:
