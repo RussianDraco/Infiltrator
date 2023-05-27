@@ -117,6 +117,9 @@ HALF_TEXTURE_SIZE = TEXTURE_SIZE // 2
 #icon vars
 ICON_WIDTH, ICON_HEIGHT = 80, 80
 
+#check if youre touching an enemy to give you suspicion every this much time
+TOUCH_CHECK_TIME = 5000
+
 #changeable settings
 MouseRotation_Setting = False
 
@@ -233,7 +236,7 @@ ENEMIES = {
         "stats" : Stats(
             vision_dist = 999,
             suspicion_lvl = 5,
-            speed = 0.03,
+            speed = 0.07,
             minsus = 0
         )
     }
@@ -301,6 +304,10 @@ class Player:
     def recover_stamina(self):
         if self.check_stamina_recovery_delay() and self.stamina < PLAYER_MAX_STAMINA:
             self.stamina += 1
+
+    def check_touching_sus(self):
+        if self.game.object_handler.npc_on_square(self.map_pos) != None:
+            self.raise_suspicion(1)
 
     #function to move player
     def movement(self):
@@ -684,27 +691,27 @@ BASE_DATA = {
     "spawn": [1.5, 1.5],
     "spawns": {
         "npc": [
-            ["janitor", [3.5, 3.5]],
-            ["businessman", [2.5, 2.5]],
-            ["coffeeman", [4.5, 2.5]],
-            ["octopus", [4.5, 3.5]],
-            ["secretary", [5.5, 2.5]],
+            #["janitor", [3.5, 3.5]],
+            #["businessman", [2.5, 2.5]],
+            #["coffeeman", [4.5, 2.5]],
+            #["octopus", [4.5, 3.5]],
+            #["secretary", [5.5, 2.5]],
             ["alien", [5.5, 3.5]],
-            ["goku", [3.5, 2.5]]
+            #["goku", [3.5, 2.5]]
         ],
         "passive": [],
         "sprites": [
-            ['resources/sprites/static/coolio.png', [4.5, 4.5], 0.7, 0.5],
-            ['resources/sprites/static/plant.png', [3.5, 3.5], 0.4, 1],
-            ['resources/sprites/static/plant2.png', [5.5, 5.5], 0.5, 0.7],
-            ['resources/sprites/static/fridge.png', [5.5, 3], 1.3, 0.1],
-            ['resources/sprites/static/aquarium.png', [4.5, 3], 1, 0.3],
-            ['resources/sprites/static/chair.png', [2.5, 3], 0.7, 0.5]
+            #['resources/sprites/static/coolio.png', [4.5, 4.5], 0.7, 0.5],
+            #['resources/sprites/static/plant.png', [3.5, 3.5], 0.4, 1],
+            #['resources/sprites/static/plant2.png', [5.5, 5.5], 0.5, 0.7],
+            #['resources/sprites/static/fridge.png', [5.5, 3], 1.3, 0.1],
+            #['resources/sprites/static/aquarium.png', [4.5, 3], 1, 0.3],
+            #['resources/sprites/static/chair.png', [2.5, 3], 0.7, 0.5]
             #['resources/sprites/static/candlebra.png', [2.5, 2.5], 0.25, 1.4]
         ],
         "pickups": [
-            [[6.5, 5.5], 'sus', 'resources/sprites/items/disguise.png', -3, 0.5, 0.7, ""],
-            [[6.5, 6.5], 'item', None, 1, 0.5, 0.7, 2]
+            #[[6.5, 5.5], 'sus', 'resources/sprites/items/disguise.png', -3, 0.5, 0.7, ""],
+            #[[6.5, 6.5], 'item', None, 1, 0.5, 0.7, 2]
         ]
     }
 }
@@ -2777,10 +2784,14 @@ class Game:
         self.next_char_trigger = False
         self.next_char_event = pg.USEREVENT + 1
 
+        self.check_touching_trigger = False
+        self.check_touching_event = pg.USEREVENT + 2
+
         #event for turning portal
         self.portal_event = pg.USEREVENT + 2
 
         pg.time.set_timer(self.global_event, 40)
+        pg.time.set_timer(self.check_touching_event, TOUCH_CHECK_TIME)
         pg.time.set_timer(self.next_char_event, 10)
         pg.time.set_timer(self.portal_event, 200)
         #dictionary of key isPressed?
@@ -2884,6 +2895,7 @@ class Game:
     #checks pygame events for key pressed and quits
     def check_events(self):
         self.global_trigger = False
+        self.check_touching_trigger = False
         self.next_char_trigger = False
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -2892,6 +2904,10 @@ class Game:
             #an event that is triggered every... i think 40 ms...
             if event.type == self.global_event:
                 self.global_trigger = True
+
+            elif event.type == self.check_touching_event:
+                self.check_touching_trigger = True
+                #self.player.check_touching_sus()
 
             elif event.type == self.next_char_event:
                 self.next_char_trigger = True
