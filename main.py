@@ -2538,12 +2538,11 @@ class Game:
         #self.animated_sprite.update()
         pg.display.flip()
         self.delta_time = self.clock.tick(FPS)
-<<<<<<< HEAD
+
         pg.display.set_caption(f'Infiltrator - {self.clock.get_fps() :.1f}')
-=======
-        pg.display.set_caption(f'SHROOM - {self.clock.get_fps() :.1f}')
+
         #pg.display.set_icon(pg.image.load('resources/sprites/logo.png'))
->>>>>>> 94335b2f9e6b29492c1aabbb2f82a762fb114f46
+
 
     #draws stuff
     def draw(self):
