@@ -164,7 +164,8 @@ ENEMIES = {
             vision_dist = 2,
             suspicion_lvl = 2,
             speed = 0.01,
-            minsus = 6
+            minsus = 6,
+            random_walk = True
         )
     },
     "janitor": {
@@ -176,7 +177,8 @@ ENEMIES = {
             vision_dist = 1,
             suspicion_lvl = 1,
             speed = 0.01,
-            minsus = 10
+            minsus = 10,
+            random_walk = True
         )
     },
     "coffeeman": {
@@ -188,7 +190,8 @@ ENEMIES = {
             vision_dist = 3,
             suspicion_lvl = 2,
             speed = 0.02,
-            minsus = 5
+            minsus = 5,
+            random_walk = True
         )
     },
     "octopus": {
@@ -213,7 +216,8 @@ ENEMIES = {
             vision_dist = 1,
             suspicion_lvl = 3,
             speed = 0.01,
-            minsus = 4
+            minsus = 4,
+            random_walk = True
         )
     },
     "alien": {
@@ -225,7 +229,8 @@ ENEMIES = {
             vision_dist = 1,
             suspicion_lvl = 3,
             speed = 0.01,
-            minsus = 4
+            minsus = 4,
+            random_walk = True
         )
     },
     "goku": {
@@ -265,7 +270,7 @@ class Player:
 
         self.time_prev = pg.time.get_ticks()
 
-        self.floor_level = 0
+        self.floor_level = 7
 
         self.inventoryOpen = False
 
@@ -754,7 +759,7 @@ class Map:
         self.world_map = {}
         self.rows = len(self.cur_map)
         self.cols = len(self.cur_map[0])
-        self.current_level = 1
+        self.current_level = 5
         self.inBase = True
 
         self.generator = MazeGenerator()
