@@ -710,14 +710,6 @@ class Map:
         except AttributeError:
             self.need_to_load = lvlspawn
 
-        if self.game.object_handler.hut_boss != None:
-            self.game.sound_player.stop_sound("theme")
-            self.game.sound_player.play_sound("themealt")
-        elif self.game.object_handler.boss != None:
-            self.game.sound_player.stop_sound("theme")
-            self.game.sound_player.stop_sound("themealt")
-            self.game.sound_player.play_sound("themeboss")
-
     def load_synthetic_map(self, synthmap, portal, spawndict): #for generated maps
         lvlmap = synthmap
 
@@ -1497,11 +1489,6 @@ class ObjectHandler:
                 enemy_data = ENEMIES[npctype]
 
                 self.add_npc(NPC(self.game, enemy_data["path"], npcspawn, enemy_data["scale"], enemy_data["shift"], enemy_data["animation_time"], enemy_data["stats"], none_get(enemy_data, "drops")))
-
-                if npctype == "mobboss":
-                    self.boss = self.npc_list[-1]
-                elif npctype == "hut":
-                    self.hut_boss = self.npc_list[-1]
 
         if "passive" in spawndict:
             passar = spawndict["passive"]
