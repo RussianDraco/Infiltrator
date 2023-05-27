@@ -739,10 +739,13 @@ class Map:
         #    return
 
         #if self.inBase:
-        self.game.player.teleport(LEVEL_DATA[str(self.current_level)]["spawn"])
-        self.load_level(self.current_level)
-        self.game.pathfinding.reset_pathfinding(self.cur_map)
-        self.current_level += 1
+        try:
+            self.game.player.teleport(LEVEL_DATA[str(self.current_level)]["spawn"]) #---
+            self.load_level(self.current_level)
+            self.game.pathfinding.reset_pathfinding(self.cur_map)
+            self.current_level += 1
+        except KeyError:
+            print("No next level")
         #self.inBase = False
         #else:
         #    self.game.player.teleport(BASE_DATA["spawn"])
@@ -963,7 +966,7 @@ class TextBox:
 
         self.rect = pg.Rect(x, y, width, height)
         self.game = game
-        self.showing = False
+        self.shog = False
         self.writing = False
         self.text = ""
         self.font = pg.font.Font('resources/textutil/textboxfont.ttf', 30)
@@ -1157,6 +1160,7 @@ class ObjectRenderer:
         self.popup_d = {}
 
         self.gameoverImg = pg.transform.scale(pg.image.load("resources/sprites/gameover.png"), (WIDTH, HEIGHT + SHEIGHT))
+        self.win_screen = pg.transform.scale(pg.image.load("resources/sprites/winscreen.png"), (WIDTH, HEIGHT + SHEIGHT))
 
         self.npc_talk_dict = {} #array for all passive npcs to specify if they need the talk text to show or not
 
