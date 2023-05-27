@@ -306,8 +306,9 @@ class Player:
             self.stamina += 1
 
     def check_touching_sus(self):
-        if self.game.object_handler.npc_on_square(self.map_pos) != None:
-            self.raise_suspicion(1)
+        if self.game.check_touching_trigger:
+            if self.game.object_handler.npc_on_square(self.map_pos) != None:
+                self.raise_suspicion(1)
 
     #function to move player
     def movement(self):
@@ -424,6 +425,7 @@ class Player:
     def update(self):
         self.onPortal = self.portal_check()
         self.check_lose_game()
+        self.check_touching_sus()
         #self.onRandom = self.random_check()
         self.movement()
         self.recover_stamina()
@@ -691,7 +693,7 @@ BASE_DATA = {
     "spawn": [1.5, 1.5],
     "spawns": {
         "npc": [
-            #["janitor", [3.5, 3.5]],
+            ["janitor", [3.5, 3.5]],
             #["businessman", [2.5, 2.5]],
             #["coffeeman", [4.5, 2.5]],
             #["octopus", [4.5, 3.5]],
@@ -2907,7 +2909,6 @@ class Game:
 
             elif event.type == self.check_touching_event:
                 self.check_touching_trigger = True
-                #self.player.check_touching_sus()
 
             elif event.type == self.next_char_event:
                 self.next_char_trigger = True
