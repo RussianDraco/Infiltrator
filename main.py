@@ -149,6 +149,17 @@ ENEMIES = {
             suspicion_lvl = 1,
             speed = 1
         )
+    },
+    "janitor": {
+        "path" : 'resources/sprites/npc/janitor/0.png',
+        "scale": 0.6,
+        "shift" : 0.38,
+        "animation_time" : 180,
+        "stats" : Stats(
+            vision_dist = 1,
+            suspicion_lvl = 1,
+            speed = 1
+        )
     }
 }
 ###PLAYER###
@@ -552,7 +563,9 @@ BASE_DATA = {
     "portal": [14.5, 4.5],
     "spawn": [1.5, 1.5],
     "spawns": {
-        "npc": [],
+        "npc": [
+            ["janitor", [3.5, 3.5]]
+        ],
         "passive": [],
         "sprites": [
             #['resources/sprites/static/candlebra.png', [2.5, 2.5], 0.25, 1.4]
@@ -609,35 +622,33 @@ class Map:
 
     def EXPIREMENTAL_GENERATION(self):
         synth_map, spwn, portal, spawn_dict = self.generator.generate_maze(30, 30, 7)
-        self.inRandom = True
         self.game.object_handler.clear_entities(); self.game.object_handler.clear_entities()
         self.game.player.teleport(spwn)
         self.load_synthetic_map(synth_map, portal, spawn_dict)
         self.game.pathfinding.reset_pathfinding(self.cur_map)
         self.inBase = False
 
-    def entered_portal(self, isRandom = False):
-        if self.inBase and isRandom:
-            self.EXPIREMENTAL_GENERATION(); return
-        elif (not self.inBase and isRandom) or (not self.inBase and self.inRandom):
-            self.game.player.teleport(BASE_DATA["spawn"])
-            self.load_base()
-            self.game.pathfinding.reset_pathfinding(self.cur_map)
-            self.inBase = True
-            self.inRandom = False
-            return
+    def entered_portal(self):
+        #if not self.inBase:
+        #    self.game.player.teleport(BASE_DATA["spawn"])
+        #    self.load_base()
+        #    self.game.pathfinding.reset_pathfinding(self.cur_map)
+        #    self.inBase = True
+        #    self.inRandom = False
+        #    return
 
-        if self.inBase:
-            self.game.player.teleport(LEVEL_DATA[str(self.current_level)]["spawn"])
-            self.load_level(self.current_level)
-            self.game.pathfinding.reset_pathfinding(self.cur_map)
-            self.inBase = False
-        else:
-            self.game.player.teleport(BASE_DATA["spawn"])
-            self.load_base()
-            self.current_level += 1
-            self.game.pathfinding.reset_pathfinding(self.cur_map)
-            self.inBase = True
+        #if self.inBase:
+        self.game.player.teleport(LEVEL_DATA[str(self.current_level)]["spawn"])
+        self.load_level(self.current_level)
+        self.game.pathfinding.reset_pathfinding(self.cur_map)
+        self.current_level += 1
+        #self.inBase = False
+        #else:
+        #    self.game.player.teleport(BASE_DATA["spawn"])
+        #    self.load_base()
+        #    self.current_level += 1
+        #    self.game.pathfinding.reset_pathfinding(self.cur_map)
+        #    self.inBase = True
 
     def get_map(self):
         #reset world map maybe?
@@ -1483,6 +1494,8 @@ class ObjectHandler:
                 npctype = npc[0]
                 npcspawn = npc[1][0], npc[1][1]
                 
+                enemy_data = ENEMIES[npctype]
+
                 self.add_npc(NPC(self.game, enemy_data["path"], npcspawn, enemy_data["scale"], enemy_data["shift"], enemy_data["animation_time"], enemy_data["stats"], none_get(enemy_data, "drops")))
 
                 if npctype == "mobboss":
@@ -1584,9 +1597,15 @@ class NPC(AnimatedSprite):
 
         self.current_atk = None
 
+        self.alive = True
+
         #gets all its animations's frame
-        self.idle_images = self.get_images(self.path + '/idle')
-        self.walk_images = self.get_images(self.path + '/walk')
+        self.idle_images = None
+        self.walk_images = None
+        if os.path.exists(self.path + '/idle'):
+            self.idle_images = self.get_images(self.path + '/idle')
+        if os.path.exists(self.path + '/walk'):
+            self.walk_images = self.get_images(self.path + '/walk')
 
         self.ray_cast_value = False
         self.frame_counter = 0
@@ -1645,16 +1664,14 @@ class NPC(AnimatedSprite):
 
             #check if there is a clear line of sight between player and npc
             self.ray_cast_value = self.ray_cast_player_npc() 
-            self.check_hit_in_npc()
-            if self.pain:
-                self.animate_pain()
 
             #if saw player, start hunting him down and moving torwards him, starts pathfinding algo
-            elif self.ray_cast_value:
+            if self.ray_cast_value:
                 self.player_search_trigger = True
 
             elif self.player_search_trigger:
-                self.animate(self.walk_images)
+                if not self.walk_images == None:
+                    self.animate(self.walk_images)
                 self.movement()
 
             else:
