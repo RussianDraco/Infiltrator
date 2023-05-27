@@ -186,6 +186,30 @@ ENEMIES = {
             speed = 0.01,
             minsus = 9
         )
+    },
+    "secretary": {
+        "path" : 'resources/sprites/npc/secretary/0.png',
+        "scale": 0.6,
+        "shift" : 0.45,
+        "animation_time" : 180,
+        "stats" : Stats(
+            vision_dist = 1,
+            suspicion_lvl = 3,
+            speed = 0.01,
+            minsus = 4
+        )
+    },
+    "alien": {
+        "path" : 'resources/sprites/npc/alien/0.png',
+        "scale": 0.6,
+        "shift" : 0.45,
+        "animation_time" : 180,
+        "stats" : Stats(
+            vision_dist = 1,
+            suspicion_lvl = 3,
+            speed = 0.01,
+            minsus = 4
+        )
     }
 }
 ###PLAYER###
@@ -594,7 +618,9 @@ BASE_DATA = {
             ["janitor", [3.5, 3.5]],
             ["businessman", [2.5, 2.5]],
             ["coffeeman", [4.5, 2.5]],
-            ["octopus", [4.5, 3.5]]
+            ["octopus", [4.5, 3.5]],
+            ["secretary", [5.5, 2.5]],
+            ["alien", [5.5, 3.5]]
         ],
         "passive": [],
         "sprites": [
@@ -1140,7 +1166,7 @@ class ObjectRenderer:
         else:
             self.sky_offset = (self.sky_offset + 4.5 * self.game.player.rel) % WIDTH
 
-        self.screen.fill('black')
+        self.screen.fill('skyblue')
         
         self.screen.blit(self.sky_image, (-self.sky_offset, 0))
         self.screen.blit(self.sky_image, (-self.sky_offset + WIDTH, 0))
@@ -1655,7 +1681,20 @@ class NPC(AnimatedSprite):
             self.y += dy
 
     #manage all npc movement
-    def movement(self):
+    def movement(self, nonplayer = False, otherCoord = (None, None)): #nonplayer is for when the npc isnt trying to go to the player but rather somewhere else(otherCoord)
+        if nonplayer:
+            #use pathfinding algo to find next location
+            next_pos = self.game.pathfinding.get_path(self.map_pos, otherCoord)
+            next_x, next_y = next_pos
+
+            #dont move there if there is already an npc standing in that square
+            if next_pos not in self.game.object_handler.npc_positions:
+                #mesure angle torward player and mesure potential movement
+                angle = math.atan2(next_y + 0.5 - self.y, next_x + 0.5 - self.x)
+                dx = math.cos(angle) * self.speed
+                dy = math.sin(angle) * self.speed
+                self.check_wall_collision(dx, dy)
+
         #use pathfinding algo to find next location
         next_pos = self.game.pathfinding.get_path(self.map_pos, self.game.player.map_pos)
         next_x, next_y = next_pos
@@ -1769,6 +1808,18 @@ class NPC(AnimatedSprite):
         if 0 < player_dist < wall_dist or not wall_dist:
             return True
         return False
+
+class NPCRandomMovement():
+    def __init__(self, game, npc, move):
+        self.game = game
+        self.npc = npc
+        self.move = move
+
+        self.time_between_moves = randint(2000, 9000)
+        self.time_from_last_move = 0
+
+    def update(self):
+        pass
 
         
 ###PATHFINDING ###
@@ -2303,7 +2354,7 @@ class MenuButton:
         self.draw_button()
 
     def draw_button(self):
-        self.surf.fill('black')
+        self.surf.fill('skyblue')
         pg.draw.rect(self.surf, self.current_color, (0, 0, self.width, self.height), border_radius=5)
         self.surf.blit(self.button_txt, (self.width//2 - self.button_txt.get_width()//2, self.height//2 - self.button_txt.get_height()//2))
 
@@ -2342,7 +2393,7 @@ class StartMenu:
     def __init__(self):
         self.mainscreen = pg.display.set_mode(ACTUALRES, pg.FULLSCREEN)
         self.screen = pg.Surface((WIDTH, HEIGHT + SHEIGHT)) # not a swear word, stands for s height
-
+        self.screen.fill('skyblue')
         self.in_menu = True
         self.font = pg.font.Font(None, 65)
         self.mouseX, self.mouseY = pg.mouse.get_pos()
@@ -2350,6 +2401,7 @@ class StartMenu:
         self.inCredits = False
         self.inOptions = False
         self.credits = pg.image.load('resources/sprites/credits.png')
+        self.wacky_font = pg.font.Font('resources/textutil/wackyfont.ttf', 225)
 
     def update(self):
         self.mouseX, self.mouseY = pg.mouse.get_pos()
@@ -2362,6 +2414,7 @@ class StartMenu:
                 return but
 
     def run(self):
+        self.drawtitle()
         self.buttons.append(MenuButton(self, (HALF_WIDTH - 75, 300), 150, 75, "Play", self.play_button))
         self.buttons.append(MenuButton(self, (HALF_WIDTH - 100, 400), 200, 75, "Credits", self.credits_button))
         self.buttons.append(MenuButton(self, (HALF_WIDTH - 95, 500), 190, 75, "Options", self.options_button))
@@ -2435,10 +2488,10 @@ class StartMenu:
         sys.exit()
 
     def play_button(self):
-        self. in_menu = False
+        self.in_menu = False
         
     def options_button(self):
-        self.screen.fill('black')
+        self.screen.fill('skyblue')
 
         self.inOptions = True
         [but.changeHidden(True) for but in self.buttons]
@@ -2452,7 +2505,7 @@ class StartMenu:
         pg.display.flip()
 
     def credits_button(self):
-        self.screen.fill('black')
+        self.screen.fill('skyblue')
 
         self.inCredits = True
         [but.changeHidden(True) for but in self.buttons]
@@ -2465,7 +2518,7 @@ class StartMenu:
         pg.display.flip()
 
     def X_options_button(self):
-        self.screen.fill('black')
+        self.screen.fill('skyblue')
 
         self.inOptions = False
         [but.changeHidden(False) for but in self.buttons if but.functionToCall != self.X_credits_button]
@@ -2479,7 +2532,7 @@ class StartMenu:
         pg.display.flip()
 
     def X_credits_button(self):
-        self.screen.fill('black')
+        self.screen.fill('skyblue')
 
         self.inCredits = False
         [but.changeHidden(False) for but in self.buttons if not but.functionToCall == self.X_options_button and not but.tag == "options"]
@@ -2489,6 +2542,14 @@ class StartMenu:
         [but.draw() for but in self.buttons]
 
         pg.display.flip()
+        
+    def drawtitle(self):
+        appliedTxt = self.wacky_font.render("Infiltrator", False, 'black')
+
+        x, y = 360, 60
+
+        self.screen.blit(appliedTxt, (x,y))
+
 
 
 ###GAME CODE###
