@@ -2259,23 +2259,7 @@ class Popup:
 
 ###CROSSBAR###
 
-
-class Crossbar:
-    def __init__(self, game):
-        self.game = game
-        self.screen = game.screen
-        self.line_col = (200, 200, 200)  # white
-        self.line_length = 50
-        self.line_length = self.line_length//2
-        self.line_width = 3
-        
-    def draw(self):
-        pg.draw.line(self.screen, self.line_col, (HALF_WIDTH-self.line_length, HALF_HEIGHT), (HALF_WIDTH + self.line_length, HALF_HEIGHT), self.line_width) #left to right
-        pg.draw.line(self.screen, self.line_col, (HALF_WIDTH, HALF_HEIGHT-self.line_length), (HALF_WIDTH, HALF_HEIGHT+self.line_length), self.line_width) #up to down
-
-
 ###STATBAR###
-
 
 class StatBar:
     def __init__(self, game):
@@ -2289,85 +2273,7 @@ class StatBar:
 
         doom_font = self.doom_font
 
-#######################################LORE#####################################
-
-class lore:
-    def __init__(self):
-        self.mainscreen = pg.display.set_mode(ACTUALRES, pg.FULLSCREEN)
-        self.screen = pg.Surface((WIDTH, HEIGHT + SHEIGHT)) # not a swear word, stands for s height
-        self.folder_path = "resources/lore"
-        self.duration = 2
-        self.fade_in_time = 1
-        self.fade_out_time = 1
-        self.images = []
-        self.current_image = None
-        self.image_alpha = 0
-        self.fade_in_timer = 0
-        self.fade_out_timer = 0
-        self.clock = pg.time.Clock()
-        self.lore = True
-        
-        #load images from folder
-        for file in os.listdir(self.folder_path):
-            if file.endswith(".png") or file.endswith(".jpg") or file.endswith(".jpeg"):
-                image_path = os.path.join(self.folder_path, file)
-                image = pg.image.load(image_path).convert_alpha()
-                self.images.append(image)
-                
-    def update_time(self):
-        self.delta_time = self.clock.tick(60) / 1000.0
-        return self.delta_time
-
-    def update(self, dt): #dt is the time since the last update
-        if self.current_image is None: #sets first image and image and starts the magic
-            self.screen.fill("black")
-            self.current_image = self.images[0]
-            self.fade_in_timer = self.fade_in_time
-        else:
-            if self.fade_in_timer > 0: # fade in image
-                self.fade_in_timer -= dt
-                self.image_alpha = int(255 - (self.fade_in_timer / self.fade_in_time) * 255)
-                
-            elif self.duration > 0: #displays image for wanted time
-                self.duration -= dt
-                
-            elif self.fade_out_timer < self.fade_out_time: # fade out the image
-                self.fade_out_timer += dt
-                self.image_alpha = int((self.fade_out_timer / self.fade_out_time) * 255)
-                
-            else: #next image is set to the now image
-                current_index = self.images.index(self.current_image)
-                
-                if current_index == len(self.images) - 1: # if no more images lest then stop
-                    self.lore = False
-                    
-                else:
-                    next_index = (current_index + 1) % len(self.images)
-                    self.current_image = self.images[next_index]
-                    self.duration = self.duration
-                    self.fade_in_timer = self.fade_in_time
-                    self.fade_out_timer = 0
-                    self.image_alpha = 0
-
-    def draw(self):
-        if self.current_image is not None:
-            scaled_image = pg.transform.scale(self.current_image, self.screen.get_size())
-            scaled_image.set_alpha(self.image_alpha)
-            self.screen.blit(scaled_image, (0, 0))
-        
-    def run(self):
-        while self.lore:
-            transcreen = pg.transform.scale(self.screen, ACTUALRES)
-            self.mainscreen.blit(transcreen, (0, 0))
-
-            pg.display.flip()
-            
-            self.dt = self.update_time()
-            self.update(self.dt)
-            self.draw()
-
 ###############################START MENU#################################
-
 
 class MenuButton:
     def __init__(self, menu, pos, width, height, text, functionToCall, tag = None):
@@ -2524,11 +2430,6 @@ class StartMenu:
             if event.type == pg.MOUSEBUTTONDOWN:
                 [but.mouseClick() for but in self.buttons]
 
-    def play_lore(self):
-        self.truelore = lore()
-        self.truelore.run()
-        
-
     def exit_button(self):
         pg.quit()
         sys.exit()
@@ -2662,7 +2563,6 @@ class Game:
         self.statbar = StatBar(self)
         self.text_box = TextBox(self, 200, HALF_HEIGHT + HALF_HEIGHT // 2, HALF_WIDTH + HALF_WIDTH // 2, HALF_HEIGHT // 2)
         self.display_menu = DisplayMenu(self)
-        self.crossbar = Crossbar(self)
         self.pawn_shop = PawnShopMenu(self)
 
     #updates everything that needs updating
@@ -2676,15 +2576,13 @@ class Game:
         #self.animated_sprite.update()
         pg.display.flip()
         self.delta_time = self.clock.tick(FPS)
-        pg.display.set_caption(f'SHROOM - {self.clock.get_fps() :.1f}')
-        pg.display.set_icon(pg.image.load('resources/sprites/logo.png'))
+        pg.display.set_caption(f'Infiltrator - {self.clock.get_fps() :.1f}')
 
     #draws stuff
     def draw(self):
         self.object_renderer.draw()
         self.statbar.draw()
         self.display_menu.draw()
-        self.crossbar.draw()
 
         self.text_box.draw()
         self.object_renderer.draw_npc_talker()
