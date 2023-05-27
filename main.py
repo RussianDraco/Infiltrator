@@ -2805,7 +2805,7 @@ class Game:
 
         self.high_score = round(self.current_time * (1 + self.player.stealth/10) - (self.inventory_system.meme_number() * 100))
 
-        hs = font.render("High Score: " + str(self.high_score), False, (0, 0, 0))
+        hs = font.render("Score: " + str(self.high_score), False, (0, 0, 0))
         self.screen.blit(hs, (HALF_WIDTH - hs.get_width()//2, HALF_HEIGHT - hs.get_height()//2))
 
         #self.sound_player.stop_sound("theme"); self.sound_player.load_sound("winning", 'resources/sound/win.wav'); self.sound_player.play_sound("winning", volume=0.4, loop=False)
