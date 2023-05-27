@@ -272,7 +272,7 @@ class Player:
             self.time_prev = time_now
             return True
 
-    def recover_health(self):
+    def recover_stamina(self):
         if self.check_stamina_recovery_delay() and self.stamina < PLAYER_MAX_STAMINA:
             self.stamina += 1
 
@@ -383,6 +383,7 @@ class Player:
         self.onPortal = self.portal_check()
         #self.onRandom = self.random_check()
         self.movement()
+        self.recover_stamina()
 
         if MouseRotation_Setting:
             self.mouse_control()
