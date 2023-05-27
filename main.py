@@ -88,8 +88,9 @@ MOUSE_MAX_REL = 40
 MOUSE_BORDER_LEFT = 100
 MOUSE_BORDER_RIGHT = WIDTH - MOUSE_BORDER_LEFT
 
-#color of floor
+#color of stuff
 FLOOR_COLOR = (30, 30, 30)
+SUSFONT_COLOR = (204, 202, 169)
 
 #fov stuff
 FOV = math.pi / 3
@@ -257,7 +258,6 @@ class Player:
 
     #function for checking if pos is wall
     def check_wall(self, x, y):
-        #for now empty colliders(bloated goblin) only work in base
         if self.game.map.inBase:
             return (x, y) not in self.game.map.world_map# and not (x, y) in ALL_EMPTY_COLLIDER
         else:
@@ -1042,7 +1042,6 @@ class ObjectRenderer:
         self.wall_textures = self.load_wall_textures()
         self.sky_image = self.get_texture('resources/textures/sky.png', (WIDTH, HALF_HEIGHT))
         self.sky_offset = 0
-        self.blood_screen = pg.transform.scale(pg.image.load('resources/sprites/blood.png'), (WIDTH, HEIGHT)); self.blood_screen.set_alpha(100)
         #self.gameoverImg = 
         self.portal_frames = [self.get_texture('resources/textures/elevator.png')]
 
@@ -1051,7 +1050,7 @@ class ObjectRenderer:
 
         self.popup_list = []
 
-        self.doom_font = pg.font.Font(None, 20)
+        self.wacky_font = pg.font.Font(None, 20)
 
         self.y_gap = 10 #gap between popups
 
@@ -1103,10 +1102,6 @@ class ObjectRenderer:
 
     def show_win_screen(self): self.screen.blit(self.win_screen, (0, 0))
 
-    #show hurt screen
-    def player_damage(self):
-        self.screen.blit(self.blood_screen, (0, 0))
-
     #draw sky and floor, not currently used
     def draw_background(self):
         if not MouseRotation_Setting:
@@ -1127,9 +1122,9 @@ class ObjectRenderer:
         else:
             font_size = (6-dist) * 10
 
-        doom_font = pg.font.Font('resources/textutil/wackyfont.ttf', int(font_size*2))
+        wacky_font = pg.font.Font('resources/textutil/wackyfont.ttf', int(font_size*2))
 
-        excl = doom_font.render("!", False, (255, 0, 0))
+        excl = wacky_font.render("!", False, (255, 0, 0))
 
         self.screen.blit(excl, (x, y))
 
@@ -1878,10 +1873,10 @@ class InventoryIcon:
 
         icon_img = pg.transform.scale(icon_img, (SLOT_X - 6, SLOT_Y - 6))
 
-        doom_font = pg.font.Font('resources/textutil/wackyfont.ttf', 25)
+        wacky_font = pg.font.Font('resources/textutil/wackyfont.ttf', 25)
 
         if self.quantity > 1:
-            quantity_txt = doom_font.render(str(self.quantity), False, (0, 0, 0))
+            quantity_txt = wacky_font.render(str(self.quantity), False, (0, 0, 0))
 
         my_surface.blit(icon_img, (2, 3))
         if self.quantity > 1:
@@ -1919,7 +1914,7 @@ class DisplayMenu:
 
         self.inven_surface = None
 
-        self.doom_font = pg.font.Font(None, 30)
+        self.wacky_font = pg.font.Font(None, 30)
 
     def draw(self):
         if self.showing:
@@ -2223,7 +2218,7 @@ class Popup:
         y_cor = 10
 
         for txt in self.game.text_box.wrap_text(self.text, 34):
-            self.mysurface.blit(self.game.object_renderer.doom_font.render(txt, False, (0, 0, 0)), (10, y_cor))
+            self.mysurface.blit(self.game.object_renderer.wacky_font.render(txt, False, (0, 0, 0)), (10, y_cor))
             y_cor += 15
 
         #self.mysurface.set_alpha(self.fade)
@@ -2249,15 +2244,15 @@ class StatBar:
     def __init__(self, game):
         self.game = game
         self.screen = game.screen
-        self.doom_font = pg.font.Font('resources/textutil/wackyfont.ttf', 80)
+        self.wacky_font = pg.font.Font('resources/textutil/wackyfont.ttf', 80)
 
     def draw(self):
         #pg.draw.rect(self.screen, FLOOR_COLOR, (0, HALF_HEIGHT, WIDTH, HEIGHT))
         pg.draw.rect(self.screen, 'black', (0, HEIGHT, WIDTH, SHEIGHT))
 
-        doom_font = self.doom_font
+        wacky_font = self.wacky_font
 
-        health = doom_font.render("Suspicion: " + str(self.game.player.stealth), False, (255, 0, 0))
+        health = wacky_font.render("Suspicion: " + str(self.game.player.stealth), False, SUSFONT_COLOR)
         self.screen.blit(health, (20, HEIGHT + 40))
 
 ###############################START MENU#################################
