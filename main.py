@@ -2257,6 +2257,9 @@ class StatBar:
 
         doom_font = self.doom_font
 
+        health = doom_font.render("Suspicion: " + str(self.game.player.stealth), False, (255, 0, 0))
+        self.screen.blit(health, (20, HEIGHT + 40))
+
 ###############################START MENU#################################
 
 class MenuButton:
