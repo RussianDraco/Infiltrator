@@ -146,8 +146,8 @@ ENEMIES = {
         "shift" : 0.38,
         "animation_time" : 180,
         "stats" : Stats(
-            vision_dist = 1,
-            suspicion_lvl = 1,
+            vision_dist = 2,
+            suspicion_lvl = 2,
             speed = 1
         )
     },
@@ -567,7 +567,8 @@ BASE_DATA = {
     "spawn": [1.5, 1.5],
     "spawns": {
         "npc": [
-            ["janitor", [3.5, 3.5]]
+            ["janitor", [3.5, 3.5]],
+            ["businessman", [2.5, 2.5]]
         ],
         "passive": [],
         "sprites": [
@@ -1668,7 +1669,7 @@ class NPC(AnimatedSprite):
             self.ray_cast_value = self.ray_cast_player_npc() 
 
             #if saw player, start hunting him down and moving torwards him, starts pathfinding algo
-            if self.ray_cast_value and self.follower or (not self.genStealth and self.ray_cast_value):
+            if self.ray_cast_value and self.follower or (not self.genStealth and self.ray_cast_value and distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist):
                 if not self.genStealth:
                     self.genStealth = True
                     self.game.player.stealth += self.suspicion_lvl
@@ -1680,7 +1681,8 @@ class NPC(AnimatedSprite):
                 self.movement()
 
             else:
-                self.animate(self.idle_images)
+                if self.idle_images != None:
+                    self.animate(self.idle_images)
         else:
             self.animate_death()
 
