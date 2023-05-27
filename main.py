@@ -598,7 +598,8 @@ BASE_DATA = {
         ],
         "passive": [],
         "sprites": [
-            ['resources/sprites/static/table.png', [2.5, 2.5], 0.25, 1.4]
+            ['resources/sprites/static/coolio.png', [4.5, 4.5], 0.25, 1.4],
+            ['resources/sprites/static/plant.png', [3.5, 3.5], 0.25, 1.4]
             #['resources/sprites/static/candlebra.png', [2.5, 2.5], 0.25, 1.4]
         ],
         "pickups": [
