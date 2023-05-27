@@ -216,9 +216,24 @@ ENEMIES = {
             speed = 0.01,
             minsus = 4
         )
+    },
+    "goku": {
+        "path" : 'resources/sprites/npc/goku/0.png',
+        "scale": 1,
+        "shift" : 0.1,
+        "animation_time" : 180,
+        "stats" : Stats(
+            vision_dist = 999,
+            suspicion_lvl = 5,
+            speed = 0.03,
+            minsus = 0
+        )
     }
 }
+
+
 ###PLAYER###
+
 
 #player class
 class Player:
@@ -646,7 +661,8 @@ BASE_DATA = {
             ["coffeeman", [4.5, 2.5]],
             ["octopus", [4.5, 3.5]],
             ["secretary", [5.5, 2.5]],
-            ["alien", [5.5, 3.5]]
+            ["alien", [5.5, 3.5]],
+            ["goku", [3.5, 2.5]]
         ],
         "passive": [],
         "sprites": [
@@ -2384,11 +2400,19 @@ class StatBar:
 
         wacky_font = self.wacky_font
 
-        health = wacky_font.render("Suspicion: " + str(self.game.player.stealth), False, SUSFONT_COLOR)
-        self.screen.blit(health, (20, HEIGHT + 40))
+        sus = wacky_font.render("Suspicion: " + str(self.game.player.stealth), False, SUSFONT_COLOR)
+        self.screen.blit(sus, (20, HEIGHT + 40))
 
-        health = wacky_font.render("Stamina: " + str(self.game.player.stamina), False, SUSFONT_COLOR)
-        self.screen.blit(health, (400, HEIGHT + 40))
+        stam = wacky_font.render("Stamina: " + str(self.game.player.stamina), False, SUSFONT_COLOR)
+        self.screen.blit(stam, (430, HEIGHT + 40))
+
+        lvl = wacky_font.render("Level: " + str(self.game.map.current_level), False, SUSFONT_COLOR)
+        self.screen.blit(lvl, (840, HEIGHT + 40))
+
+        self.game.current_time = round(pg.time.get_ticks() / 1000)
+        time = wacky_font.render(str(math.floor(self.game.current_time/60)) + ":" + str(self.game.current_time % 60), False, (0, 0, 0))
+        self.screen.blit(time, (WIDTH - 175, 40))
+
 
 ###############################START MENU#################################
 
@@ -2626,7 +2650,8 @@ class Game:
         self.screen = pg.Surface((WIDTH, HEIGHT + SHEIGHT))
         self.clock = pg.time.Clock()
         self.delta_time = 1
-        
+        self.current_time = 0
+
         self.mouseShowing = False
         if MouseRotation_Setting:
             self.setMouseVisibility(False)
@@ -2675,6 +2700,7 @@ class Game:
 
     #creates instances of all neccesary classes and starts of the game
     def new_game(self):
+        self.current_time = 0
         self.sound_player = SoundPlayer(); self.sound_player.play_sound("theme", volume=0.2, loop=True)
         self.map = Map(self)
         self.pathfinding = PathFinding(self)
