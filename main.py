@@ -186,6 +186,30 @@ ENEMIES = {
             speed = 0.01,
             minsus = 9
         )
+    },
+    "secretary": {
+        "path" : 'resources/sprites/npc/secretary/0.png',
+        "scale": 0.6,
+        "shift" : 0.45,
+        "animation_time" : 180,
+        "stats" : Stats(
+            vision_dist = 1,
+            suspicion_lvl = 3,
+            speed = 0.01,
+            minsus = 4
+        )
+    },
+    "alien": {
+        "path" : 'resources/sprites/npc/alien/0.png',
+        "scale": 0.6,
+        "shift" : 0.45,
+        "animation_time" : 180,
+        "stats" : Stats(
+            vision_dist = 1,
+            suspicion_lvl = 3,
+            speed = 0.01,
+            minsus = 4
+        )
     }
 }
 ###PLAYER###
@@ -594,7 +618,9 @@ BASE_DATA = {
             ["janitor", [3.5, 3.5]],
             ["businessman", [2.5, 2.5]],
             ["coffeeman", [4.5, 2.5]],
-            ["octopus", [4.5, 3.5]]
+            ["octopus", [4.5, 3.5]],
+            ["secretary", [5.5, 2.5]],
+            ["alien", [5.5, 3.5]]
         ],
         "passive": [],
         "sprites": [
@@ -1654,7 +1680,20 @@ class NPC(AnimatedSprite):
             self.y += dy
 
     #manage all npc movement
-    def movement(self):
+    def movement(self, nonplayer = False, otherCoord = (None, None)): #nonplayer is for when the npc isnt trying to go to the player but rather somewhere else(otherCoord)
+        if nonplayer:
+            #use pathfinding algo to find next location
+            next_pos = self.game.pathfinding.get_path(self.map_pos, otherCoord)
+            next_x, next_y = next_pos
+
+            #dont move there if there is already an npc standing in that square
+            if next_pos not in self.game.object_handler.npc_positions:
+                #mesure angle torward player and mesure potential movement
+                angle = math.atan2(next_y + 0.5 - self.y, next_x + 0.5 - self.x)
+                dx = math.cos(angle) * self.speed
+                dy = math.sin(angle) * self.speed
+                self.check_wall_collision(dx, dy)
+
         #use pathfinding algo to find next location
         next_pos = self.game.pathfinding.get_path(self.map_pos, self.game.player.map_pos)
         next_x, next_y = next_pos
@@ -1679,7 +1718,8 @@ class NPC(AnimatedSprite):
             if self.game.player.stealth >= self.minsus and distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist:
                 self.player_search_trigger = True
             else:
-                self.player_search_trigger = False
+                if self.player_search_trigger == True and not self.ray_cast_value and not distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist:
+                    self.player_search_trigger = False
 
             #if saw player, start hunting him down and moving torwards him, starts pathfinding algo
             if self.ray_cast_value and self.follower or (not self.genStealth and self.ray_cast_value and distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist):
@@ -1767,6 +1807,18 @@ class NPC(AnimatedSprite):
         if 0 < player_dist < wall_dist or not wall_dist:
             return True
         return False
+
+class NPCRandomMovement():
+    def __init__(self, game, npc, move):
+        self.game = game
+        self.npc = npc
+        self.move = move
+
+        self.time_between_moves = randint(2000, 9000)
+        self.time_from_last_move = 0
+
+    def update(self):
+        pass
 
         
 ###PATHFINDING ###
