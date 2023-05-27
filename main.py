@@ -241,7 +241,7 @@ ENEMIES = {
         "stats" : Stats(
             vision_dist = 999,
             suspicion_lvl = 5,
-            speed = 0.07,
+            speed = 0.05,
             minsus = 0
         )
     }
