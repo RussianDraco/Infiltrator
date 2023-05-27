@@ -1683,8 +1683,8 @@ class SoundPlayer:
         pg.mixer.init()
         self.sounds = {}
 
-        self.game.sound_player.load_sound('disguise', 'resources/sound/disguise.wav')
-        self.game.sound_player.load_sound('alert', 'resources/sound/alert.wav')
+        self.load_sound('disguise', 'resources/sound/disguise.mp3')
+        self.load_sound('alert', 'resources/sound/alert.mp3')
 
     def load_sound(self, sound_name, sound_file_path):
         self.sounds[sound_name] = pg.mixer.Sound(sound_file_path)
