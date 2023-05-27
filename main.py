@@ -1525,9 +1525,6 @@ class ObjectHandler:
             for npc in npcar:
                 npctype = npc[0]
                 npcspawn = npc[1][0], npc[1][1]
-
-                enemy_data = ENEMIES[npctype]
-
                 
                 self.add_npc(NPC(self.game, enemy_data["path"], npcspawn, enemy_data["scale"], enemy_data["shift"], enemy_data["animation_time"], enemy_data["stats"], none_get(enemy_data, "drops")))
 
@@ -1594,7 +1591,6 @@ class Spawner: #(invisible)
         if location == None:
             location = self.x, self.y
 
-        npc_data = ENEMIES[npc_name]
         npc = None
 
         for x in range(number):
