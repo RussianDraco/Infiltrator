@@ -77,6 +77,8 @@ PLAYER_SPEED = 0.0055
 PLAYER_ROT_SPEED = 0.002
 PLAYER_SIZE_SCALE = 60
 
+LOSING_STEALTH = 15
+
 #stamina stuff
 PLAYER_MAX_STAMINA = 100
 STAMINA_RECOVERY_DELAY = 250
@@ -247,6 +249,9 @@ class Player:
         self.canMove = True
 
         self.stealth = 0
+
+        self.criminal_stealth = False
+
         self.stamina = PLAYER_MAX_STAMINA
 
         self.time_prev = pg.time.get_ticks()
@@ -392,6 +397,11 @@ class Player:
         self.rel = max(-MOUSE_MAX_REL, min(MOUSE_MAX_REL, self.rel))
         self.angle += self.rel * MOUSE_SENSITIVITY/2 * self.game.delta_time
         self.angle %= math.tau
+
+    def raise_suspicion(self, pnts):
+        self.stealth += pnts
+        if self.stealth >= LOSING_STEALTH:
+            self.criminal_stealth = True
 
     #update function for player class
     def update(self):
@@ -980,6 +990,8 @@ class TextBox:
         self.finish_typing = False
 
         self.current_pitch = ""
+
+        self.showing = False
 
         self.talk_source = None
 
@@ -1772,7 +1784,7 @@ class NPC(AnimatedSprite):
             #check if there is a clear line of sight between player and npc
             self.ray_cast_value = self.ray_cast_player_npc() 
 
-            if self.game.player.stealth >= self.minsus and distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist:
+            if self.game.player.stealth >= self.minsus and distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist or self.game.player.criminal_stealth:
                 self.player_search_trigger = True
             else:
                 if self.player_search_trigger == True and not self.ray_cast_value and not distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist:
@@ -1782,7 +1794,7 @@ class NPC(AnimatedSprite):
             if self.ray_cast_value and self.follower or (not self.genStealth and self.ray_cast_value and distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist):
                 if not self.genStealth:
                     self.genStealth = True
-                    self.game.player.stealth += self.suspicion_lvl
+                    self.game.player.raise_suspicion(self.suspicion_lvl)
 
             elif self.player_search_trigger: #add 'or' for adding an option for follow if stealth too high
                 if not self.walk_images == None:
@@ -2850,8 +2862,8 @@ if __name__ == '__main__':
     start_menu = StartMenu()
     start_menu.run()
     
-    levelselector = levelselector()
-    levelselector.run()
+    #levelselector = levelselector()
+    #levelselector.run()
     
     game = Game()
     game.run()
