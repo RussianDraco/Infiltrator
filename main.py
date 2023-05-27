@@ -1679,7 +1679,8 @@ class NPC(AnimatedSprite):
             if self.game.player.stealth >= self.minsus and distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist:
                 self.player_search_trigger = True
             else:
-                self.player_search_trigger = False
+                if self.player_search_trigger == True and not self.ray_cast_value and not distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist:
+                    self.player_search_trigger = False
 
             #if saw player, start hunting him down and moving torwards him, starts pathfinding algo
             if self.ray_cast_value and self.follower or (not self.genStealth and self.ray_cast_value and distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist):
