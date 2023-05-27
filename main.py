@@ -1071,6 +1071,7 @@ class ObjectRenderer:
         self.wall_textures = self.load_wall_textures()
         self.sky_image = self.get_texture('resources/textures/sky.png', (WIDTH, HALF_HEIGHT))
         self.sky_offset = 0
+        #self.blood_screen = pg.transform.scale(pg.image.load('resources/sprites/blood.png'), (WIDTH, HEIGHT)); self.blood_screen.set_alpha(100)
         #self.gameoverImg = 
         self.portal_frames = [self.get_texture('resources/textures/elevator.png')]
 
