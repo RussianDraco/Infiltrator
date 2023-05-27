@@ -717,8 +717,8 @@ BASE_DATA = {
             #['resources/sprites/static/candlebra.png', [2.5, 2.5], 0.25, 1.4]
         ],
         "pickups": [
-            #[[6.5, 5.5], 'sus', 'resources/sprites/items/disguise.png', -3, 0.5, 0.7, ""],
-            #[[6.5, 6.5], 'item', None, 1, 0.5, 0.7, 2]
+            [[6.5, 5.5], 'sus', 'resources/sprites/items/disguise.png', -3, 0.5, 0.7, ""],
+            [[6.5, 6.5], 'item', None, 1, 0.5, 0.7, 2]
         ]
     }
 }
@@ -759,7 +759,7 @@ class Map:
         self.world_map = {}
         self.rows = len(self.cur_map)
         self.cols = len(self.cur_map[0])
-        self.current_level = 5
+        self.current_level = 11
         self.inBase = True
 
         self.generator = MazeGenerator()
@@ -2822,7 +2822,7 @@ class Game:
 
         self.high_score = round(self.current_time * (1 + self.player.stealth/10) - (self.inventory_system.meme_number() * 100))
 
-        hs = font.render("Score: " + str(self.high_score) + " seconds", False, (0, 0, 0))
+        hs = font.render("Score: " + str(self.high_score), False, (0, 0, 0))
         self.screen.blit(hs, (HALF_WIDTH - hs.get_width()//2, HALF_HEIGHT - hs.get_height()//2))
 
         #self.sound_player.stop_sound("theme"); self.sound_player.load_sound("winning", 'resources/sound/win.wav'); self.sound_player.play_sound("winning", volume=0.4, loop=False)
