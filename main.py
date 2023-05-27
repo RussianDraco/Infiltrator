@@ -259,7 +259,7 @@ class Player:
     def check_wall(self, x, y):
         #for now empty colliders(bloated goblin) only work in base
         if self.game.map.inBase:
-            return (x, y) not in self.game.map.world_map and not (x, y) in ALL_EMPTY_COLLIDER
+            return (x, y) not in self.game.map.world_map# and not (x, y) in ALL_EMPTY_COLLIDER
         else:
             return (x, y) not in self.game.map.world_map
     
@@ -724,13 +724,11 @@ class Map:
 
     #minimap thinkgy
     def draw(self):
-        self.mmsurface.fill('black')
-
-        self.mmxoffset = -self.game.player.x; self.mmyoffset = -self.game.player.y
-
-        [pg.draw.rect(self.mmsurface, 'darkgray', (pos[0] * 20 + self.mmxoffset * 20 + 50, pos[1] * 20 + self.mmyoffset * 20 + 50, 20, 20), 2) for pos in self.world_map]
-
-        self.game.screen.blit(self.mmsurface, (50, 550))
+        pass
+    #    self.mmsurface.fill('black')
+    #    self.mmxoffset = -self.game.player.x; self.mmyoffset = -self.game.player.y
+    #    [pg.draw.rect(self.mmsurface, 'darkgray', (pos[0] * 20 + self.mmxoffset * 20 + 50, pos[1] * 20 + self.mmyoffset * 20 + 50, 20, 20), 2) for pos in self.world_map]
+    #    self.game.screen.blit(self.mmsurface, (50, 550))
         
 
 ###RAYCASTING###
@@ -1044,7 +1042,7 @@ class ObjectRenderer:
         self.sky_offset = 0
         self.blood_screen = pg.transform.scale(pg.image.load('resources/sprites/blood.png'), (WIDTH, HEIGHT)); self.blood_screen.set_alpha(100)
         #self.gameoverImg = 
-        self.portal_frames = [self.get_texture('resources/textures/staircase.png')]
+        self.portal_frames = [self.get_texture('resources/textures/elevator.png')]
 
         self.portal_frame_n = 0
         self.random_frame_n = 0
@@ -1149,7 +1147,7 @@ class ObjectRenderer:
     def load_wall_textures(self):
         #for every item in the textures dir that ends with .png and whos name is numeric, add it to the directory as a value with its number as its key
         out_dict = {int(pth.replace('.png', '')) : self.get_texture(f'resources/textures/' + pth) for pth in os.listdir('resources/textures') if pth.endswith('.png') and pth.replace('.png', '').isnumeric()}
-        out_dict["p"] = self.get_texture('resources/textures/staircase.png')
+        out_dict["p"] = self.get_texture('resources/textures/elevator.png')
         return out_dict
 
 
@@ -1583,6 +1581,17 @@ class NPC(AnimatedSprite):
         super().__init__(game, path, pos, scale, shift, animation_time)
 
         self.current_atk = None
+
+        if stats == None:
+            self.vision_dist = 2
+            self.suspicion_lvl = 0.03
+            self.speed = 1
+            self.size = 100
+        else:
+            self.vision_dist = stats.vision_dist
+            self.suspicion_lvl = stats.suspicion_lvl
+            self.speed = stats.speed
+            self.size = stats.size
 
         self.alive = True
 
@@ -2556,9 +2565,9 @@ class Game:
 
         self.pawn_shop.draw()
 
-        #debugin thingy
-        self.map.draw()
-        self.player.draw()
+        #minimap thingy
+        #self.map.draw()
+        #self.player.draw()
 
         pg.transform.scale(self.screen, ACTUALRES, self.mainscreen)
 
