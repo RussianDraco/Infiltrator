@@ -141,7 +141,12 @@ class Item:
 
 #contains all the possible items
 ITEM_DICT = {
-    1 : Item("Disguise", 'resources/sprites/items/disguise.png', 1, "")
+    1 : Item("Disguise", 'resources/sprites/items/disguise.png', 1, ""),
+    2 : Item("Meme1", 'resources/sprites/memes/meme1.png', 2, ""),
+    3 : Item("Meme1", 'resources/sprites/memes/meme2.png', 3, ""),
+    4 : Item("Meme1", 'resources/sprites/memes/meme3.png', 4, ""),
+    5 : Item("Meme1", 'resources/sprites/memes/meme4.png', 5, ""),
+    6 : Item("Meme1", 'resources/sprites/memes/meme5.png', 6, "")
 }
 
 #dict describing all the enemies
@@ -404,9 +409,14 @@ class Player:
         if self.stealth >= LOSING_STEALTH:
             self.criminal_stealth = True
 
+    def check_lose_game(self):
+        if self.criminal_stealth and self.game.object_handler.npc_on_square(self.map_pos) != None:
+            self.game.lose_game()
+
     #update function for player class
     def update(self):
         self.onPortal = self.portal_check()
+        self.check_lose_game()
         #self.onRandom = self.random_check()
         self.movement()
         self.recover_stamina()
@@ -479,6 +489,13 @@ class InventorySystem:
 
         else:
             return False
+        
+    def meme_number(self):
+        num = 0
+        for itm in self.inventory:
+            if 'meme' in itm.name:
+                num += 1
+        return num
 
 
 ###MAP###
@@ -679,11 +696,15 @@ BASE_DATA = {
         "sprites": [
             ['resources/sprites/static/coolio.png', [4.5, 4.5], 0.7, 0.5],
             ['resources/sprites/static/plant.png', [3.5, 3.5], 0.4, 1],
-            ['resources/sprites/static/plant2.png', [5.5, 5.5], 0.5, 0.7]
+            ['resources/sprites/static/plant2.png', [5.5, 5.5], 0.5, 0.7],
+            ['resources/sprites/static/fridge.png', [5.5, 3], 1.3, 0.1],
+            ['resources/sprites/static/aquarium.png', [4.5, 3], 1, 0.3],
+            ['resources/sprites/static/chair.png', [2.5, 3], 0.7, 0.5]
             #['resources/sprites/static/candlebra.png', [2.5, 2.5], 0.25, 1.4]
         ],
         "pickups": [
-            [[6.5, 5.5], 'sus', 'resources/sprites/items/disguise.png', -3, 0.5, 0.7, ""]
+            [[6.5, 5.5], 'sus', 'resources/sprites/items/disguise.png', -3, 0.5, 0.7, ""],
+            [[6.5, 6.5], 'item', None, 1, 0.5, 0.7, 2]
         ]
     }
 }
@@ -1176,7 +1197,7 @@ class ObjectRenderer:
         self.popup_d = {}
 
         self.gameoverImg = pg.transform.scale(pg.image.load("resources/sprites/gameover.png"), (WIDTH, HEIGHT + SHEIGHT))
-        self.win_screen = pg.transform.scale(pg.image.load("resources/sprites/credits.png"), (WIDTH, HEIGHT + SHEIGHT))
+        self.win_screen = pg.transform.scale(pg.image.load("resources/sprites/winscreen.png"), (WIDTH, HEIGHT + SHEIGHT))
 
         self.npc_talk_dict = {} #array for all passive npcs to specify if they need the talk text to show or not
 
@@ -1638,6 +1659,13 @@ class ObjectHandler:
         self.pickup_list.append(pickup)
     def disable_pickup(self, pickup):
         self.pickup_list.remove(pickup)
+
+    def npc_on_square(self, coord):
+        for npc in self.npc_list:
+            nx, ny = npc.x, npc.y
+            cx, cy = coord
+            if distance_formula(nx, ny, cx, cy) <= 1.25:
+                return npc
 
 
 ###SOUND###
@@ -2726,6 +2754,7 @@ class Game:
         self.clock = pg.time.Clock()
         self.delta_time = 1
         self.current_time = 0
+        self.high_score = 0
 
         self.mouseShowing = False
         if MouseRotation_Setting:
@@ -2762,8 +2791,27 @@ class Game:
     def win_game(self):
         self.object_renderer.show_win_screen()
 
+        font = self.display_menu.wacky_font
+
+        self.high_score = self.current_time * (1 + self.player.stealth/10) - (self.inventory_system.meme_number() * 100)
+
+        hs = font.render("High Score: " + str(self.high_score), False, (0, 0, 0))
+        self.screen.blit(hs, (HALF_WIDTH - hs.get_width()//2, HALF_HEIGHT - hs.get_height()//2))
+
         #self.sound_player.stop_sound("theme"); self.sound_player.load_sound("winning", 'resources/sound/win.wav'); self.sound_player.play_sound("winning", volume=0.4, loop=False)
         
+        pg.transform.scale(self.screen, ACTUALRES, self.mainscreen)
+
+        pg.display.flip()
+
+        pg.time.wait(7500)
+
+        pg.quit()
+        sys.exit()
+
+    def lose_game(self):
+        self.object_renderer.game_over()
+
         pg.transform.scale(self.screen, ACTUALRES, self.mainscreen)
 
         pg.display.flip()
