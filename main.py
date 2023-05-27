@@ -1686,6 +1686,7 @@ class SoundPlayer:
         self.load_sound('disguise', 'resources/sound/disguise.mp3')
         self.load_sound('alert', 'resources/sound/alert.mp3')
         self.load_sound('vineboom', 'resources/sound/vineboom.mp3')
+        self.load_sound('theme', 'resources/sound/infiltheme.wav')
 
     def load_sound(self, sound_name, sound_file_path):
         self.sounds[sound_name] = pg.mixer.Sound(sound_file_path)
