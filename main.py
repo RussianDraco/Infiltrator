@@ -1176,7 +1176,7 @@ class ObjectRenderer:
         self.popup_d = {}
 
         self.gameoverImg = pg.transform.scale(pg.image.load("resources/sprites/gameover.png"), (WIDTH, HEIGHT + SHEIGHT))
-        self.win_screen = pg.transform.scale(pg.image.load("resources/sprites/winscreen.png"), (WIDTH, HEIGHT + SHEIGHT))
+        self.win_screen = pg.transform.scale(pg.image.load("resources/sprites/credits.png"), (WIDTH, HEIGHT + SHEIGHT))
 
         self.npc_talk_dict = {} #array for all passive npcs to specify if they need the talk text to show or not
 
