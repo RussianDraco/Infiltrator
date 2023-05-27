@@ -1685,6 +1685,8 @@ class SoundPlayer:
 
         self.load_sound('disguise', 'resources/sound/disguise.mp3')
         self.load_sound('alert', 'resources/sound/alert.mp3')
+        self.load_sound('vineboom', 'resources/sound/vineboom.mp3')
+        self.load_sound('theme', 'resources/sound/infiltheme.wav')
 
     def load_sound(self, sound_name, sound_file_path):
         self.sounds[sound_name] = pg.mixer.Sound(sound_file_path)
@@ -1824,7 +1826,10 @@ class NPC(AnimatedSprite):
 
             if self.game.player.stealth >= self.minsus and distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist or self.game.player.criminal_stealth:
                 self.player_search_trigger = True
-                self.game.sound_player.play_sound("alert", loop = False)
+                if 'goku' in self.path:
+                    self.game.sound_player.play_sound("vineboom", loop = False)
+                else:
+                    self.game.sound_player.play_sound("alert", loop = False)
             else:
                 if self.player_search_trigger == True and not self.ray_cast_value and not distance_formula(self.x, self.y, self.player.x, self.player.y) <= self.vision_dist:
                     self.player_search_trigger = False
@@ -2799,7 +2804,7 @@ class Game:
 
         self.high_score = round(self.current_time * (1 + self.player.stealth/10) - (self.inventory_system.meme_number() * 100))
 
-        hs = font.render("High Score: " + str(self.high_score), False, (0, 0, 0))
+        hs = font.render("Score: " + str(self.high_score) + " seconds", False, (0, 0, 0))
         self.screen.blit(hs, (HALF_WIDTH - hs.get_width()//2, HALF_HEIGHT - hs.get_height()//2))
 
         #self.sound_player.stop_sound("theme"); self.sound_player.load_sound("winning", 'resources/sound/win.wav'); self.sound_player.play_sound("winning", volume=0.4, loop=False)
