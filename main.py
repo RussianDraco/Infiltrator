@@ -141,6 +141,7 @@ class Item:
 
 #contains all the possible items
 ITEM_DICT = {
+    1 : Item("Disguise", 'resources/sprites/items/disguise.png', 1, "")
 }
 
 #dict describing all the enemies
@@ -682,6 +683,7 @@ BASE_DATA = {
             #['resources/sprites/static/candlebra.png', [2.5, 2.5], 0.25, 1.4]
         ],
         "pickups": [
+            [[6.5, 5.5], 'sus', 'resources/sprites/items/disguise.png', -3, 0.5, 0.7, ""]
         ]
     }
 }
@@ -1345,6 +1347,11 @@ class Pickup(SpriteObject):
         if self.in_player_range():
             if self.type == "money":
                 pass
+
+            elif self.type == "sus":
+                self.game.player.raise_suspicion(-3)
+                self.game.object_renderer.create_popup(f"Disguise lowered your suspicion level by 3")
+                removed = True
 
             elif self.type == "item":
                 self.game.inventory_system.add_item(self.game.inventory_system.get_item_by_id(self.subtype), self.number)
