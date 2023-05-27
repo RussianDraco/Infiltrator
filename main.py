@@ -80,8 +80,6 @@ PLAYER_SPEED = 0.0055
 PLAYER_ROT_SPEED = 0.002
 PLAYER_SIZE_SCALE = 60
 
-QUEST_LIMIT = 3 #we made quests, but didn't actually get to implement them into the game
-
 #inventory
 INVENTORY_SIZE = 9
 
@@ -128,12 +126,6 @@ class Item:
 
 #contains all the possible items
 ITEM_DICT = {
-    1 : Item("Stomach Medicine", 'resources/sprites/items/stomachmedicine.png', 1, "the greatest stomach cleanser in the world, even a hellish one"),
-    2 : Item("Demon Tears", 'resources/sprites/items/demontear.png', 2, "keep crying demons"),
-    3 : Item("Calculator", 'resources/sprites/items/calculator.png', 3, ""),
-    4 : Item("Shadow Cloak", 'resources/sprites/items/cloak.png', 4, ""),
-    5 : Item("Gem", 'resources/sprites/items/gem.png', 5, ""),
-    6 : Item("Spell", 'resources/sprites/items/spell.png', 6, "")
 }
 
 #enemy drop system
@@ -158,8 +150,6 @@ class Player:
         self.rel = pg.mouse.get_rel()[0]
         self.time_prev = pg.time.get_ticks()
         self.canMove = True
-
-        self.current_quests = [] #lets just restrict it to three quests for now
 
         self.inventoryOpen = False
 
@@ -264,8 +254,6 @@ class Player:
             return[(pos[0] + sideL * math.cos(ang), pos[1] + sideL * math.sin(ang)),
                    (pos[0] + sideL * math.cos(ang + 2*math.pi/3), pos[1] + sideL * math.sin(ang + 2*math.pi/3)),
                    (pos[0] + sideL * math.cos(ang + 4*math.pi/3), pos[1] + sideL * math.sin(ang + 4*math.pi/3))]
-
-        #pg.draw.circle(self.game.screen, 'green', (100, 600), 8)
 
         points = triangle_calc([100, 600], self.angle, 10)
 
@@ -544,7 +532,6 @@ base_map = [
 Random_Portal_X, Random_Portal_Y = 14, 14
 
 #info abt the bloated goblin that is removed with a stomach medicine
-#btw you need an empty collider in the location of the bloated goblin and the coordaintes of that collider has to be set in the quest so that its correctly removed
 
 #map info for the spawn/base/home
 BASE_DATA = {
@@ -914,9 +901,6 @@ class TextBox:
                             self.showing = False
                             self.game.player.canMove = True
                             self.last_talk = pg.time.get_ticks() #maybe add this to the else part of "if self.ar_pos < len(self.goal_array):"
-                            if not self.talk_source == None and self.talk_source.special_tag in self.game.quest_manager.del_sprite_tags:
-                                self.talk_source.self_destruct()
-                                self.game.quest_manager.del_sprite_tags.remove(self.talk_source.special_tag)
 
                             self.talk_source = None
                             return
@@ -926,11 +910,6 @@ class TextBox:
                         self.text = ""
                         self.goal_array = []
                         self.goal_text = ""
-
-                        #if talk source special tag in del sprite tags in the quest manager, delete the sprite after talking to him
-                        if not self.talk_source == None and self.talk_source.special_tag in self.game.quest_manager.del_sprite_tags:
-                            self.talk_source.self_destruct()
-                            self.game.quest_manager.del_sprite_tags.remove(self.talk_source.special_tag)
 
                         self.talk_source = None
 
@@ -1247,14 +1226,8 @@ class SpriteObject:
     def update(self):
         self.get_sprite()
 
-"""
-class SuperStaticSprite(SpriteObject):
-    def __init__(self, game, path='resources/sprites/static/candlebra.png', pos=(10.5, 3.5), scale=0.25, shift=1.4):
-        super().__init__(game, path, pos, scale, shift)
-"""
-
 class Pickup(SpriteObject):
-    #type would be item/money/armor/ammo/special(for quests)/etc, subtype would really be for special type, number is for the number of the thing you pickup, subtype will be the id of item if the type is item
+    #type would be item/money/special/etc, subtype would really be for special type, number is for the number of the thing you pickup, subtype will be the id of item if the type is item
     def __init__(self, game, pos, type, path=None, number=1, scale=0.25, shift=1.6, subtype = ""):
         if path == None and type == 'item':
             #its purposefully game and not self.game because super is called after and game is the same and this needs to be before super init
@@ -1326,8 +1299,6 @@ class BasicPassiveNPC(SpriteObject):
 
     #SPECIAL FUNCTION#
     def close_pawn_shop(self):
-        if not self.special_tag == None:
-            self.game.quest_manager.quest_watch(self)
         if len(self.nextlinequery) == 0:
             self.game.text_box.display_text(self.myline, self.pitch, call_source=self)
         else:
@@ -1350,9 +1321,6 @@ class BasicPassiveNPC(SpriteObject):
 
                 if self.dont_show_textbox == True:
                     return
-
-                if not self.special_tag == None:
-                    self.game.quest_manager.quest_watch(self)
                 if len(self.nextlinequery) == 0:
                     self.game.text_box.display_text(self.myline, self.pitch, call_source=self)
                 else:
@@ -1579,26 +1547,6 @@ class ObjectHandler:
         self.pickup_list.remove(pickup)
 
 
-###SPAWNER###
-
-
-class Spawner: #(invisible)
-    def __init__(self, game, pos):
-        self.game = game
-        self.x, self.y = pos
-
-    def spawn(self, npc_name, number, location = None):
-        if location == None:
-            location = self.x, self.y
-
-        npc = None
-
-        for x in range(number):
-            npc = NPC(self.game, npc_data['path'], location, npc_data['scale'], npc_data['shift'], npc_data['animation_time'], npc_data['stats'], none_get(npc_data, 'drops'))
-
-            self.game.object_handler.add_npc(npc)
-
-
 ###SOUND###
 
 
@@ -1609,11 +1557,6 @@ class Sound:
         pg.mixer.init()
         self.path = 'resources/sound/'
         self.shotgun = pg.mixer.Sound(self.path + 'throw.wav')
-        #self.npc_pain = pg.mixer.Sound(
-        #self.npc_death = pg.mixer.Sound(
-        #self.npc_shot = pg.mixer.Sound(
-        #self.player_pain = pg.mixer.Sound(
-        #self.theme = pg.mixer.Sound(self.path + 'theme.mp3')
 
 class SoundPlayer:
     def __init__(self):
@@ -1950,50 +1893,7 @@ class InventoryIcon:
         if (self.posx <= mx <= self.posx + SLOT_X) and (self.posy <= my <= self.posy + SLOT_Y):
             self.game.pawn_shop.slot_clicked(self)
 
-QUEST_RES = QUEST_X, QUEST_Y = 270, 100
-
-class QuestIcon:
-    def __init__(self, game, id):
-        self.game = game
-        self.id = id
-        self.title = ""
-        self.description = ""
-        self.quantity = 0
-    
-    def update_id(self, id):
-        self.id = id
-
-    def update(self):
-        #function to update self.icon and self.quantity to the position of self.id in the inventory
-        myquest = self.game.display_menu.quest_list[self.id]
-        self.title = myquest.title
-        self.description = myquest.description
-
-        return self.draw()
-
-    def draw(self):
-        icon_size = QUEST_RES
-
-        my_surface = pg.Surface(icon_size)
-        pg.draw.rect(my_surface, (255, 255, 255), pg.Rect(3, 3, QUEST_X - 6, QUEST_Y - 6))
-
-        doom_font = self.game.display_menu.quest_icon_font
-
-        title_txt = doom_font.render(self.title, False, (0, 0, 0))
-
-        ycor = 40
-        for desctxt in self.game.text_box.wrap_text(self.description, 30):
-            desc_txt = doom_font.render(desctxt, False, (0, 0, 0))
-            my_surface.blit(desc_txt, (15, ycor))
-            ycor += 20
-
-        my_surface.blit(title_txt, (15, 15))
-
-        #return a finished icon surface
-
-        return my_surface
-
-#class for showing active quests and inventory
+#class for showing inventory
 SLOT_HOR_LIMIT = 6
 
 class DisplayMenu:
@@ -2004,16 +1904,12 @@ class DisplayMenu:
 
         self.showing = False
 
-        self.quest_list = []
         self.item_list = []
         self.inventory_icons = []
-        self.quest_icons = []
 
         self.inven_surface = None
 
         self.doom_font = pg.font.Font(None, 30)
-
-        self.quest_icon_font = self.doom_font
 
     def draw(self):
         if self.showing:
@@ -2024,8 +1920,6 @@ class DisplayMenu:
             self.inven_surface.set_alpha(210)
 
             self.draw_inventory()
-            
-            self.screen.blit(self.draw_quests(), (int(DISPLAY_X * 1.3), 80))
 
             self.screen.blit(self.inven_surface, (80, 80))
 
@@ -2036,45 +1930,6 @@ class DisplayMenu:
                 self.game.setMouseVisibility(True)
             else:
                 self.game.setMouseVisibility(False)
-
-    def draw_quests(self):
-        quest_surface = pg.Surface((int(QUEST_X * 1.5), DISPLAY_Y))
-
-        quest_surface.set_alpha(100)
-
-        curquests = self.doom_font.render("Quests", False, (255, 255, 255))
-
-        quest_surface.blit(curquests, (int(QUEST_X * 1.5)//2 - 75, 10))
-
-        self.quest_list = []
-        for quest in self.game.player.current_quests:
-            self.quest_list.append(quest)
-
-        missing_quests = len(self.quest_list) - len(self.quest_icons)
-
-        if missing_quests > 0:
-            for x in range(missing_quests):
-                self.quest_icons.append(QuestIcon(self.game, len(self.quest_icons)))
-        elif missing_quests < 0:
-            for x in range(abs(missing_quests)):
-                self.quest_icons.pop(-1)
-
-            n = 0
-            for icon in self.quest_icons:
-                icon.update_id(n)
-                n+=1
-
-        pos = 0
-        for icon in self.quest_icons:
-            slot = icon.update()
-
-            x_padding, y_padding = 0, 30
-
-            quest_surface.blit(slot, (int(QUEST_Y * 0.5), pos * SLOT_Y + y_padding * math.floor(pos / SLOT_HOR_LIMIT) + 75))
-
-            pos+=1
-        
-        return quest_surface
 
     def draw_inventory(self):
         self.item_list = []
